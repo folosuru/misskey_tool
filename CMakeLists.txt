@@ -8,7 +8,7 @@ find_package(libpqxx REQUIRED)
 
 file(GLOB SOURCES "/*.cpp")
 
-add_executable(misskey_tool main.cpp  ${SOURCES} ${LIBREST})
+add_executable(misskey_tool main.cpp  ${SOURCES} )
 
 target_link_libraries(misskey_tool PRIVATE cpprestsdk::cpprest)
 
