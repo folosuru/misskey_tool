@@ -1,15 +1,19 @@
 cmake_minimum_required(VERSION 3.23)
 project(misskey_tool)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 find_package(cpprestsdk REQUIRED)
 find_package(libpqxx REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
-file(GLOB SOURCES "/*.cpp")
+file(GLOB_RECURSE SOURCES
+    ${PROJECT_SOURCE_DIR}/src/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/*.hpp
+)
 
-add_executable(misskey_tool main.cpp  ${SOURCES} )
+
+add_executable(misskey_tool src/main.cpp ${SOURCES} )
 
 target_link_libraries(misskey_tool cpprestsdk::cpprest)
 target_link_libraries(misskey_tool libpqxx::pqxx)
