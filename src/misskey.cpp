@@ -13,7 +13,7 @@ std::optional<std::vector<std::string>> misskey::fetchFederation(const utility::
     auto response = client.request(web::http::methods::POST, L"", json.serialize() , L"application/json").get();
     std::string data = response.extract_utf8string().get();
 
-    if (!(data[0] == '[' | data[0] == '{') | data == "[]" ) {
+    if (!(data[0] == '[' | data[0] == '{')) {
         return std::nullopt;
     }
 
