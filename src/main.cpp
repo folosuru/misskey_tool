@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include "misskey.hpp"
+#include "server_api.hpp"
 
 int main() {
     return 0;

@@ -2,9 +2,26 @@
 // Created by folosuru on 2023/02/24.
 //
 
-#include "misskey.hpp"
+#include "server_api.hpp"
 
-std::optional<std::vector<std::string>> misskey::fetchFederation(const utility::string_t &URL , int offset) {
+using namespace api;
+
+std::optional<instance_list> misskey::fetchAllFederation(const utility::string_t &URL) {
+    // /api/statsから連合の数を取得、その後なんかいい感じに
+    std::string stats = web::http::client::http_client(URL + L"/api/stats")
+        .request(web::http::methods::POST, L"" , L"{}" , L"application/json")
+        .get()
+        .extract_utf8string().get();
+
+    if (!(stats[0] == '[' | stats[0] == '{')) return std::nullopt;
+
+    int instance_count = nlohmann::json(stats)["instances"].get<int>();
+
+    static_cast<int>(instance_count / instance_get_limit);
+
+}
+
+std::optional<instance_list> misskey::fetchFederation(const utility::string_t &URL , int offset) {
     std::vector<std::string> list;
     web::http::client::http_client client(URL + L"/api/federation/instances");
     web::json::value json;
