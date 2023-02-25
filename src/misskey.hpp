@@ -11,10 +11,8 @@
 
 
 
-class misskey {
-
-public:
-    static const int instance_get_limit = 100;
+namespace misskey{
+    const int instance_get_limit = 100;
 
     /**
      * get Federation from URL.
@@ -22,6 +20,6 @@ public:
      * @param offset
      * @return
      */
-    static std::optional<std::vector<std::string>> fetchFederation(const utility::string_t&  URL,int offset);
+    std::optional<std::vector<std::string>> fetchFederation(const utility::string_t&  URL,int offset);
 
 };
