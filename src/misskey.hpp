@@ -5,12 +5,23 @@
 
 #include <string>
 #include <optional>
+
 #include <cpprest/http_client.h>
-#include <optional>
+#include <nlohmann/json.hpp>
+
 
 
 class misskey {
 
 public:
-    static std::string fetchFederation(const utility::string_t&  URL);
+    static const int instance_get_limit = 100;
+
+    /**
+     * get Federation from URL.
+     * @param URL
+     * @param offset
+     * @return
+     */
+    static std::optional<std::vector<std::string>> fetchFederation(const utility::string_t&  URL,int offset);
+
 };
