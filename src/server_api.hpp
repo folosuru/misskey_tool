@@ -17,6 +17,10 @@ namespace misskey {
 
     const int instance_get_limit = 100;
 
+    const int access_thread_limit = 10;
+
+    const int connect_timeout = 5;
+
     /**
      * get Federation from URL.
      * @param URL
