@@ -12,4 +12,10 @@ class other : public api {
         return std::nullopt;
     }
 
+    int getFederationCount() override {
+        return 0;
+    }
+
+
+
 };

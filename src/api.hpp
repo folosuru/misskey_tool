@@ -12,14 +12,16 @@ class api {
 
 public:
 
-    static api * getInstance(utility::string_t URL);
+    static api * getInstance(const utility::string_t& URL);
 
     typedef std::vector<std::string> instance_list;
 
     api() = delete;
-    api(const utility::string_t URL , web::json::value nodeinfo);
+    api(const utility::string_t& URL , web::json::value nodeinfo);
 
     virtual std::optional<instance_list> fetchAllFederation() = 0;
+
+    virtual int getFederationCount() = 0;
 
     utility::string_t getURL();
 

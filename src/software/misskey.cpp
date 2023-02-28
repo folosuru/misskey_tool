@@ -21,16 +21,7 @@ public:
 
     std::optional<instance_list> fetchAllFederation() override {
         // get federation from /api/stats .
-
-        std::string stats = web::http::client::http_client(getURL() + L"/api/stats")
-                .request(web::http::methods::POST, L"", L"{}", L"application/json")
-                .get()
-                .extract_utf8string().get();
-
-        if (!(stats[0] == '[' | stats[0] == '{')) return std::nullopt;
-
-        int instance_count = nlohmann::json::parse(stats)["instances"].get<int>();
-
+        int instance_count = getFederationCount();
         int i = 0;
         int offset = 0;
         instance_list list;
@@ -50,8 +41,10 @@ public:
             std::chrono::time_point start_waiting = std::chrono::steady_clock::now();
 
             for (auto &future: future_list) {
-                if (future.wait_until(start_waiting + std::chrono::seconds(connect_timeout)) != std::future_status::ready)
+                if (future.wait_until(start_waiting + std::chrono::seconds(connect_timeout)) != std::future_status::ready) {
+                    std::wcout << "timeout:" << this->getURL() << std::endl;
                     return std::nullopt;
+                }
                 std::optional<instance_list> data = future.get();
                 if (!data) return std::nullopt;
                 list.insert(list.end(), data.value().begin(), data.value().end());
@@ -62,6 +55,17 @@ public:
             ++i;
         }
         return list;
+    }
+
+    int getFederationCount() override {
+        if (this->FederationCount) {
+            return this->FederationCount.value();
+        } else {
+            return web::http::client::http_client(getURL() + L"/api/stats")
+                    .request(web::http::methods::POST, L"", L"{}", L"application/json")
+                    .get()
+                    .extract_json().get()[L"instances"].as_integer();
+        }
     }
 
     static std::optional<instance_list> fetchFederation(const utility::string_t &URL, int offset) {
