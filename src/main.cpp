@@ -24,12 +24,14 @@ int main() {
 
     std::vector<std::thread> thread_list;
     std::vector<std::future<std::optional<api::instance_list>>> result_list;
-    for (const auto& item : keys) {
+    for (auto item : keys) {
+        redis.del(item);
+        item.erase(0, 19);
+        redis.set("misskey_tool:history:" + item,"");
         std::promise<std::optional<api::instance_list>> promise;
         result_list.push_back(promise.get_future());
         thread_list.emplace_back([](std::string url , std::promise<std::optional<api::instance_list>> promise) {
             std::cout << "get: " + url << std::endl;
-                url.erase(0, 19);
                 if (url == "misskey.io") {
                     promise.set_value(std::nullopt);
                     return ;
@@ -50,13 +52,12 @@ int main() {
     }
     for (auto& future : result_list ){
         auto result = future.get();
-        if (result) {
-            for (const auto& i: result.value()) {
-                if (redis.get(i)){
-                    continue;
-                } else {
-                    redis.set("misskey_tool:queue:" + i,"");
-                }
+        if (!result) continue;
+        for (const auto& i1: result.value()) {
+            if (redis.get("misskey_tool:*" + i1)){
+                continue;
+            } else {
+                redis.set("misskey_tool:queue:" + i, "");
             }
         }
     }
