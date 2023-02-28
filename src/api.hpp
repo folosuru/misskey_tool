@@ -31,4 +31,8 @@ private:
 
     web::json::value nodeinfo;
 
+protected:
+
+    std::optional<int> FederationCount = std::nullopt;
+
 };
