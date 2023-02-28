@@ -7,17 +7,23 @@ find_package(cpprestsdk REQUIRED)
 find_package(libpqxx REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
+find_library(HIREDIS_LIB hiredis)
+find_library(REDIS_PLUS_PLUS_LIB redis++)
+
 file(GLOB_RECURSE SOURCES
     ${PROJECT_SOURCE_DIR}/src/*.cpp
     ${PROJECT_SOURCE_DIR}/src/*.hpp
 )
 
 
-add_executable(misskey_tool src/main.cpp ${SOURCES} )
+add_executable(misskey_tool ${SOURCES})
 
 target_link_libraries(misskey_tool cpprestsdk::cpprest)
 target_link_libraries(misskey_tool libpqxx::pqxx)
 target_link_libraries(misskey_tool nlohmann_json::nlohmann_json)
+
+target_link_libraries(misskey_tool ${HIREDIS_LIB})
+target_link_libraries(misskey_tool ${REDIS_PLUS_PLUS_LIB})
 
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
