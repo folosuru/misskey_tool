@@ -12,25 +12,31 @@
 api * api::getInstance(const utility::string_t& URL) {
 
     try {
-        auto nodeinfo_url = web::http::client::http_client(L"https://" + URL + L"/.well-known/nodeinfo")
-                .request(web::http::methods::GET).get()
-                .extract_json().get()[L"links"][0][L"href"].as_string();
+        try {
+            auto nodeinfo_url = web::http::client::http_client(L"https://" + URL + L"/.well-known/nodeinfo")
+                    .request(web::http::methods::GET).get()
+                    .extract_json().get()[L"links"][0][L"href"].as_string();
 
-        nlohmann::json nodeinfo = nlohmann::json::parse(web::http::client::http_client(nodeinfo_url)
-                .request(web::http::methods::GET).get()
-                .extract_utf8string().get());
+            nlohmann::json nodeinfo = nlohmann::json::parse(web::http::client::http_client(nodeinfo_url)
+                                                                    .request(web::http::methods::GET).get()
+                                                                    .extract_utf8string().get());
 
-        nlohmann::json manifest = nlohmann::json::parse(web::http::client::http_client(L"https://" + URL + L"/manifest.json")
-                .request(web::http::methods::GET).get()
-                .extract_utf8string().get());
+            nlohmann::json manifest = nlohmann::json::parse(
+                    web::http::client::http_client(L"https://" + URL + L"/manifest.json")
+                            .request(web::http::methods::GET).get()
+                            .extract_utf8string().get());
 
-        auto software_name = nodeinfo["software"]["name"].get<std::string>();
+            auto software_name = nodeinfo["software"]["name"].get<std::string>();
 
-        if (software_name == "misskey") return new misskey(URL, nodeinfo,manifest);
+            if (software_name == "misskey") return new misskey(URL, nodeinfo, manifest);
 
-        return new other(URL, nodeinfo , manifest);
-
+            return new other(URL, nodeinfo, manifest);
+        } catch (std::exception& exception) {
+            std::cerr << exception.what() << std::endl;
+            return nullptr;
+        }
     } catch (web::http::http_exception& error) {
+        std::cerr << error.what() << std::endl;
         return nullptr;
     }
 }
