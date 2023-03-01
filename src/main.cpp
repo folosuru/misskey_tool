@@ -26,7 +26,7 @@ int main() {
         createIndex.commit();
         c.close();
     } catch (std::exception const &e){
-        std::cerr << "ERROR: " << e.what() << '\n';
+        std::cerr << "ERROR: " << e.what() << std::endl;
         return 1;
     }
     auto redis = Redis("tcp://127.0.0.1:6379");
@@ -45,6 +45,7 @@ int main() {
     for (int i = 0; i < 10; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         thread_list.emplace_back(std::thread([] {
+
             std::cout << "start thread..." << std::endl;
             pqxx::connection db("user=misskey_tool password=test");
             auto redis = Redis("tcp://127.0.0.1:6379");
