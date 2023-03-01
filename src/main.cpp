@@ -60,15 +60,14 @@ int main() {
 
                 auto i = api::getInstance(std::wstring(url.begin(), url.end()));
                 if (i == nullptr) {
-                    std::cout << "nullptr" << std::endl;
-                    return;
+                    continue;
                 }
                 auto list = i->fetchAllFederation();
                 util::sql::writeInstance(db, url, i->getUserCount(), i->getPostsCount(), i->getServerSoftware(),
                                          i->getSummary(), i->getFederationCount());
-                if (!list) return;
+                if (!list) continue;
                 for (const auto &i1: list.value()) {
-                    std::cout << i1 << std::endl;
+                    //std::cout << i1 << std::endl;
                     if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
                         continue;
                     } else {
