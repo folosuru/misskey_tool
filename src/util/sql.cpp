@@ -12,4 +12,18 @@ namespace util::sql{
         return std::get<0>(result);
     }
 
+    void writeInstance(pqxx::connection& connection ,
+                       std::string& domain ,
+                       int user_count ,
+                       int post_count ,
+                       std::string software ,
+                       std::string data ,
+                       int federation_count){
+        pqxx::work work(connection);
+        work.exec("insert into instance_list (domain, user_count, post_count, software, data, federation_count)"
+                  "  VALUES (" + work.quote(domain) + "," + std::to_string(user_count) + "," +std::to_string(post_count) + ","
+                  + work.quote(software) + " , " + work.quote(data) + "," + std::to_string(federation_count) + ")");
+        work.commit();
+    }
+
 }

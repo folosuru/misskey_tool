@@ -1,15 +1,44 @@
 ﻿#include <iostream>
 #include "api.hpp"
-
+#include <pqxx/pqxx>
 #include <sw/redis++/redis++.h>
 #include <future>
+#include "util/sql.cpp"
 
 using namespace sw::redis;
 
 int main() {
 
+    auto i = api::getInstance(L"oflosky.com");
+    std::cout << i->getDescription() << std::endl;
+    std::cout << i->getServerSoftware() << std::endl;
+    std::cout << i->getSummary() << std::endl;
+
+    try{
+        pqxx::connection c("user=misskey_tool password=test");
+        std::cout << "Connected to " << c.dbname() << '\n';
+        pqxx::work tx(c);
+        tx.exec("create table IF NOT EXISTS instance_list ("
+                " domain text ,"
+                " user_count int,"
+                " post_count int,"
+                " software text,"
+                " data text,"
+                " federation_count int"
+                " );");
+        tx.commit();
+        pqxx::work createIndex(c);
+        createIndex.exec("CREATE INDEX IF NOT EXISTS domain_name_index ON instance_list (domain);");
+        createIndex.commit();
+        c.close();
+    } catch (std::exception const &e){
+        std::cerr << "ERROR: " << e.what() << '\n';
+        return 1;
+    }
+
     auto redis = Redis("tcp://127.0.0.1:6379");
 
+    /* first instance... */
     api * instance = api::getInstance(L"msky.z-n-a-k.net");
     auto list = instance->fetchAllFederation();
     if (list) {
@@ -40,7 +69,7 @@ int main() {
                     return;
                 }
                 auto list = i->fetchAllFederation();
-
+                util::sql::writeInstance(db,url,i->getUserCount(),i->getPostsCount(),i->getServerSoftware(),i->getSummary(),i->getFederationCount());
                 if (!list) return;
                 for (const auto& i1: list.value()) {
                     std::cout << i1 << std::endl;
@@ -59,5 +88,4 @@ int main() {
 
     return 0;
 }
-
 
