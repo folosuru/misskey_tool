@@ -77,7 +77,7 @@ public:
         auto response = client.request(web::http::methods::POST, L"", json.serialize(), L"application/json").get();
         std::string data = response.extract_utf8string().get();
 
-        if (!(data[0] == '[' | data[0] == '{')) {
+        if (!(data[0] == '[' || data[0] == '{')) {
             return std::nullopt;
         }
         nlohmann::json instances = nlohmann::json::parse(data);
