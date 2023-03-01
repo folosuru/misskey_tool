@@ -48,31 +48,32 @@ int main() {
             std::cout << "start thread..." << std::endl;
             pqxx::connection db("user=misskey_tool password=test");
             auto redis = Redis("tcp://127.0.0.1:6379");
+            while (true) {
+                std::unordered_set<std::string> keys;
+                redis.scan(0LL, "misskey_tool:queue*", 1, std::inserter(keys, keys.begin()));
+                if (keys.empty()) return;
 
-            std::unordered_set<std::string> keys;
-            redis.scan(0LL, "misskey_tool:queue*", 1, std::inserter(keys, keys.begin()));
-            if (keys.empty()) return;
+                std::string url = *keys.begin();
+                url.erase(0, 19);
+                redis.rename("misskey_tool:queue:" + url, "misskey_tool:history:" + url);
+                std::cout << "get: " + url << std::endl;
 
-            std::string url = *keys.begin();
-            url.erase(0, 19);
-            redis.rename("misskey_tool:queue:" + url, "misskey_tool:history:" + url);
-            std::cout << "get: " + url << std::endl;
-
-            auto i = api::getInstance(std::wstring(url.begin(), url.end()));
-            if (i == nullptr) {
-                std::cout << "nullptr" << std::endl;
-                return;
-            }
-            auto list = i->fetchAllFederation();
-            util::sql::writeInstance(db, url, i->getUserCount(), i->getPostsCount(), i->getServerSoftware(),
-                                     i->getSummary(), i->getFederationCount());
-            if (!list) return;
-            for (const auto &i1: list.value()) {
-                std::cout << i1 << std::endl;
-                if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
-                    continue;
-                } else {
-                    redis.set("misskey_tool:queue:" + i1, "");
+                auto i = api::getInstance(std::wstring(url.begin(), url.end()));
+                if (i == nullptr) {
+                    std::cout << "nullptr" << std::endl;
+                    return;
+                }
+                auto list = i->fetchAllFederation();
+                util::sql::writeInstance(db, url, i->getUserCount(), i->getPostsCount(), i->getServerSoftware(),
+                                         i->getSummary(), i->getFederationCount());
+                if (!list) return;
+                for (const auto &i1: list.value()) {
+                    std::cout << i1 << std::endl;
+                    if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
+                        continue;
+                    } else {
+                        redis.set("misskey_tool:queue:" + i1, "");
+                    }
                 }
             }
         }));
