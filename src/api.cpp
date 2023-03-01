@@ -17,9 +17,16 @@ api * api::getInstance(const utility::string_t& URL) {
                 .request(web::http::methods::GET).get()
                 .extract_utf8string().get());
 
+        nlohmann::json manifest = nlohmann::json::parse(web::http::client::http_client(L"https://" + URL + L"/manifest.json")
+                .request(web::http::methods::GET).get()
+                .extract_utf8string().get());
+
         auto software_name = nodeinfo["software"]["name"].get<std::string>();
-        if (software_name == "misskey") return new misskey(URL, nodeinfo);
-        return new other(URL, nodeinfo);
+
+        if (software_name == "misskey") return new misskey(URL, nodeinfo,manifest);
+
+        return new other(URL, nodeinfo , manifest);
+
     } catch (web::http::http_exception& error) {
         return nullptr;
     }
@@ -30,7 +37,8 @@ utility::string_t api::getURL() {
     return L"https://" + URL;
 }
 
-api::api(const utility::string_t& URL, nlohmann::json nodeinfo) {
+api::api(const utility::string_t& URL, nlohmann::json nodeinfo , nlohmann::json manifest) {
     this->URL = URL;
     this->nodeinfo = std::move(nodeinfo);
+    this->manifest = std::move(manifest);
 }

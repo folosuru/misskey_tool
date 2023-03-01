@@ -17,7 +17,7 @@ public:
     typedef std::vector<std::string> instance_list;
 
     api() = delete;
-    api(const utility::string_t& URL , nlohmann::json nodeinfo);
+    api(const utility::string_t& URL , nlohmann::json nodeinfo , nlohmann::json manifest);
 
     virtual std::optional<instance_list> fetchAllFederation() = 0;
 
@@ -30,6 +30,8 @@ private:
     utility::string_t URL;
 
     nlohmann::json nodeinfo;
+
+    nlohmann::json manifest;
 
 protected:
 
