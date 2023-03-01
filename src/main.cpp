@@ -50,9 +50,19 @@ int main() {
             auto redis = Redis("tcp://127.0.0.1:6379");
             while (true) {
                 std::unordered_set<std::string> keys;
-                redis.scan(0LL, "misskey_tool:queue*", 1, std::inserter(keys, keys.begin()));
-                if (keys.empty()) return;
-
+                auto cursor = 0LL;
+                while (true) {
+                    cursor = redis.scan(cursor, "misskey_tool:queue*", 1, std::inserter(keys, keys.begin()));
+                    if (keys.empty()) {
+                        if (cursor == 0) {
+                            std::cout << "empty" << std::endl;
+                            return ;
+                        }
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
                 std::string url = *keys.begin();
                 url.erase(0, 19);
                 redis.rename("misskey_tool:queue:" + url, "misskey_tool:history:" + url);
