@@ -3,6 +3,9 @@
 //
 
 #include "api.hpp"
+
+#include <utility>
+
 #include "software/misskey.cpp"
 #include "software/other.cpp"
 
@@ -41,4 +44,29 @@ api::api(const utility::string_t& URL, nlohmann::json nodeinfo , nlohmann::json 
     this->URL = URL;
     this->nodeinfo = std::move(nodeinfo);
     this->manifest = std::move(manifest);
+}
+
+std::string api::getSummary() {
+    nlohmann::json data;
+    data["name"] = manifest["name"].get<std::string>();
+    data["icon"] = manifest["icons"][0]["src"].get<std::string>();
+    data["description"] = this->getDescription();
+    data["server_version"] = nodeinfo["software"]["version"].get<std::string>();
+    return data.dump();
+}
+
+std::string api::getDescription() {
+    return "";
+}
+
+std::string api::getServerSoftware() {
+    return nodeinfo["software"]["name"].get<std::string>();
+}
+
+int api::getUserCount() {
+    return nodeinfo["usage"]["users"]["total"].get<int>();
+}
+
+int api::getPostsCount() {
+    return nodeinfo["usage"]["localPosts"].get<int>();
 }

@@ -23,17 +23,25 @@ public:
 
     virtual int getFederationCount() = 0;
 
+    virtual std::string getDescription();
+
     utility::string_t getURL();
 
-private:
+    std::string getServerSoftware();
+
+    std::string getSummary();
+
+    int getUserCount();
+
+    int getPostsCount();
+
+protected:
 
     utility::string_t URL;
 
     nlohmann::json nodeinfo;
 
     nlohmann::json manifest;
-
-protected:
 
     std::optional<int> FederationCount = std::nullopt;
 

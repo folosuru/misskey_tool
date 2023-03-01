@@ -87,4 +87,8 @@ public:
         return list;
     }
 
+    std::string getDescription() override {
+        return nodeinfo["metadata"]["nodeDescription"].get<std::string>();
+    }
+
 };
