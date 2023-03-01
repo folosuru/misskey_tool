@@ -8,12 +8,6 @@
 using namespace sw::redis;
 
 int main() {
-
-    auto i = api::getInstance(L"oflosky.com");
-    std::cout << i->getDescription() << std::endl;
-    std::cout << i->getServerSoftware() << std::endl;
-    std::cout << i->getSummary() << std::endl;
-
     try{
         pqxx::connection c("user=misskey_tool password=test");
         std::cout << "Connected to " << c.dbname() << '\n';
@@ -25,7 +19,7 @@ int main() {
                 " software text,"
                 " data text,"
                 " federation_count int"
-                " );");
+                " ,UNIQUE(domain));");
         tx.commit();
         pqxx::work createIndex(c);
         createIndex.exec("CREATE INDEX IF NOT EXISTS domain_name_index ON instance_list (domain);");
@@ -35,18 +29,17 @@ int main() {
         std::cerr << "ERROR: " << e.what() << '\n';
         return 1;
     }
-
     auto redis = Redis("tcp://127.0.0.1:6379");
 
     /* first instance... */
-    api * instance = api::getInstance(L"msky.z-n-a-k.net");
+   /* api * instance = api::getInstance(L"msky.z-n-a-k.net");
     auto list = instance->fetchAllFederation();
     if (list) {
         for (const auto &item: list.value()) {
             redis.set("misskey_tool:queue:" + item, "");
         }
     }
-
+*/
 
     std::vector<std::thread> thread_list;
 
