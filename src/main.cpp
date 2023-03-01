@@ -22,32 +22,34 @@ int main() {
     std::vector<std::thread> thread_list;
 
         thread_list.emplace_back(std::thread([]{
+            pqxx::connection db("user=misskey_tool password=test");
             auto redis = Redis("tcp://127.0.0.1:6379");
-            std::unordered_set<std::string> keys;
-            redis.scan( 0LL, "misskey_tool:queue*", 1 , std::inserter(keys, keys.begin()));
-            std::string url = *keys.begin();
-            url.erase(0, 19);
-            redis.rename("misskey_tool:queue:" + url, "misskey_tool:history:" + url);
-            std::cout << "get: " + url << std::endl;
-            if (url == "misskey.io") {
-                return;
-            }
-            auto i = api::getInstance(std::wstring(url.begin(), url.end()));
-            if (i == nullptr) {
-                std::cout << "nullptr" << std::endl;
-                return;
-            }
-            auto list = i->fetchAllFederation();
 
-            if (!list) return;
-            for (const auto& i1: list.value()) {
-                std::cout << i1 << std::endl;
-                if (redis.get("misskey_tool:*" + i1)){
-                    continue;
-                } else {
-                    redis.set("misskey_tool:queue:" + i1, "");
+                std::unordered_set<std::string> keys;
+                redis.scan( 0LL, "misskey_tool:queue*", 1 , std::inserter(keys, keys.begin()));
+                if (keys.empty()) return;
+
+                std::string url = *keys.begin();
+                url.erase(0, 19);
+                redis.rename("misskey_tool:queue:" + url, "misskey_tool:history:" + url);
+                std::cout << "get: " + url << std::endl;
+
+                auto i = api::getInstance(std::wstring(url.begin(), url.end()));
+                if (i == nullptr) {
+                    std::cout << "nullptr" << std::endl;
+                    return;
                 }
-            }
+                auto list = i->fetchAllFederation();
+
+                if (!list) return;
+                for (const auto& i1: list.value()) {
+                    std::cout << i1 << std::endl;
+                    if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db,i1) ) {
+                        continue;
+                    } else {
+                        redis.set("misskey_tool:queue:" + i1, "");
+                    }
+                }
         }));
 
 
