@@ -3,10 +3,10 @@
 //
 #pragma once
 
-#include <string>
 #include <optional>
 
 #include <cpprest/http_client.h>
+#include <nlohmann/json.hpp>
 
 class api {
 
@@ -17,7 +17,7 @@ public:
     typedef std::vector<std::string> instance_list;
 
     api() = delete;
-    api(const utility::string_t& URL , web::json::value nodeinfo);
+    api(const utility::string_t& URL , nlohmann::json nodeinfo);
 
     virtual std::optional<instance_list> fetchAllFederation() = 0;
 
@@ -29,7 +29,7 @@ private:
 
     utility::string_t URL;
 
-    web::json::value nodeinfo;
+    nlohmann::json nodeinfo;
 
 protected:
 
