@@ -66,7 +66,11 @@ int main() {
                 }
                 std::string url = *keys.begin();
                 url.erase(0, 19);
-                redis.rename("misskey_tool:queue:" + url, "misskey_tool:history:" + url);
+                try {
+                    redis.rename("misskey_tool:queue:" + url, "misskey_tool:history:" + url);
+                } catch (std::exception& e) {
+                    std::cerr << "Redis :" << e.what() << std::endl;
+                }
                 std::cout << "get: " + url << std::endl;
 
                 auto i = api::getInstance(std::wstring(url.begin(), url.end()));
