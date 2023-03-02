@@ -88,7 +88,11 @@ public:
     }
 
     std::string getDescription() override {
-        return nodeinfo["metadata"]["nodeDescription"].get<std::string>();
+        if (nodeinfo["metadata"]["nodeDescription"].is_null()) {
+            return "";
+        } else {
+            return nodeinfo["metadata"]["nodeDescription"].get<std::string>();
+        }
     }
 
 };
