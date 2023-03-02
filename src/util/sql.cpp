@@ -2,17 +2,15 @@
 // Created by folosuru on 2023/03/01.
 //
 
-#include <pqxx/pqxx>
+#include "sql.hpp"
 
-namespace util::sql{
-
-    bool isExistByDomain(pqxx::connection& connection , const std::string& domain) {
+    bool util::sql::isExistByDomain(pqxx::connection& connection , const std::string& domain) {
         pqxx::work work(connection);
         auto result = work.query1<bool>("SELECT EXISTS (select * from instance_list where domain ="+ work.quote(domain) +")");
         return std::get<0>(result);
     }
 
-    void writeInstance(pqxx::connection& connection ,
+    void util::sql::writeInstance(pqxx::connection& connection ,
                        std::string& domain ,
                        int user_count ,
                        int post_count ,
@@ -27,5 +25,3 @@ namespace util::sql{
                   std::to_string(post_count) + " , data = " + work.quote(data) + " , federation_count = " +std::to_string(federation_count) );
         work.commit();
     }
-
-}
