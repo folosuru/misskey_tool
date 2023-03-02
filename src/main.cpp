@@ -26,7 +26,7 @@ int main() {
         createIndex.commit();
         c.close();
     } catch (std::exception const &e){
-        std::cerr << "ERROR: " << e.what() << std::endl;
+        std::cerr << "Database setup error: " << e.what() << std::endl;
         return 1;
     }
     auto redis = Redis("tcp://127.0.0.1:6379");

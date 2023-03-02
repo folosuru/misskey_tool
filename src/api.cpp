@@ -32,11 +32,11 @@ api * api::getInstance(const utility::string_t& URL) {
 
             return new other(URL, nodeinfo, manifest);
         } catch (std::exception& exception) {
-            std::cerr << exception.what() << std::endl;
+            std::wcerr << URL << ":" << exception.what() << std::endl;
             return nullptr;
         }
     } catch (web::http::http_exception& error) {
-        std::cerr << error.what() << std::endl;
+        std::wcerr << URL << ":" << error.what() << std::endl;
         return nullptr;
     }
 }
