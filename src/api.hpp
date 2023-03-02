@@ -19,9 +19,9 @@ public:
     api() = delete;
     api(const utility::string_t& URL , nlohmann::json nodeinfo , nlohmann::json manifest);
 
-    virtual std::optional<instance_list> fetchAllFederation() = 0;
+    virtual std::optional<instance_list> fetchAllFederation();
 
-    virtual int getFederationCount() = 0;
+    virtual int getFederationCount();
 
     virtual std::string getDescription();
 

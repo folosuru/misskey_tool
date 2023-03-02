@@ -7,7 +7,6 @@
 #include <utility>
 
 #include "software/misskey.cpp"
-#include "software/other.cpp"
 
 api * api::getInstance(const utility::string_t& URL) {
 
@@ -30,7 +29,7 @@ api * api::getInstance(const utility::string_t& URL) {
 
             if (software_name == "misskey") return new misskey(URL, nodeinfo, manifest);
 
-            return new other(URL, nodeinfo, manifest);
+            return new api(URL, nodeinfo, manifest);
         } catch (std::exception& exception) {
             std::wcerr << URL << ":" << exception.what() << std::endl;
             return nullptr;
@@ -75,4 +74,12 @@ int api::getUserCount() {
 
 int api::getPostsCount() {
     return nodeinfo["usage"]["localPosts"].get<int>();
+}
+
+std::optional<api::instance_list> api::fetchAllFederation(){
+    return std::nullopt;
+}
+
+int api::getFederationCount(){
+    return 0;
 }
