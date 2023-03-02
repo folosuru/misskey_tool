@@ -73,6 +73,9 @@ int main() {
                 if (i == nullptr) {
                     continue;
                 }
+                if (redis.get("misskey_tool:history:"+url).value() ==  std::to_string(i->getFederationCount())){
+                    continue;
+                }
                 auto list = i->fetchAllFederation();
                 util::sql::writeInstance(db, url, i->getUserCount(), i->getPostsCount(), i->getServerSoftware(),
                                          i->getSummary(), i->getFederationCount());
@@ -82,7 +85,7 @@ int main() {
                     if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
                         continue;
                     } else {
-                        redis.set("misskey_tool:queue:" + i1, "");
+                        redis.set("misskey_tool:queue:" + i1, "0");
                     }
                 }
             }
