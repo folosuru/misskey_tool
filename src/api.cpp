@@ -6,7 +6,7 @@
 
 #include <utility>
 
-#include "software/misskey.cpp"
+#include "software/misskey.hpp"
 
 api * api::getInstance(const std::string& URL_) {
     utility::string_t URL = utility::conversions::to_string_t(URL_);

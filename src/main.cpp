@@ -4,7 +4,7 @@
 #include <sw/redis++/redis++.h>
 #include <future>
 #include <thread>
-#include "util/sql.cpp"
+#include "util/sql.hpp"
 
 using namespace sw::redis;
 
