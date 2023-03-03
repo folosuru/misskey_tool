@@ -11,11 +11,11 @@
 class misskey : public api {
 
 public:
-    static const int instance_get_limit = 100;
+    static const int instance_get_limit ;
 
-    static const int access_thread_limit = 10;
+    static const int access_thread_limit;
 
-    static const int connect_timeout = 5;
+    static const int connect_timeout ;
 
     using api::api;
 
