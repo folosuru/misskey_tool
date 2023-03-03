@@ -1,25 +1,9 @@
 //
 // Created by folosuru on 2023/02/24.
 //
+#include "misskey.hpp"
 
-#include <future>
-#include "../api.hpp"
-
-#include "nlohmann/json.hpp"
-
-
-class misskey : public api {
-
-public:
-    static const int instance_get_limit = 100;
-
-    static const int access_thread_limit = 10;
-
-    static const int connect_timeout = 5;
-
-    using api::api;
-
-    std::optional<instance_list> fetchAllFederation() override {
+    std::optional<api::instance_list> misskey::fetchAllFederation() {
         // get federation from /api/stats .
         int instance_count = getFederationCount();
         int i = 0;
@@ -42,7 +26,7 @@ public:
 
             for (auto &future: future_list) {
                 if (future.wait_until(start_waiting + std::chrono::seconds(connect_timeout)) != std::future_status::ready) {
-                    std::wcout << "timeout:" << this->getURL() << std::endl;
+                    ucout << LOG_TIMEOUT << this->getURL() << std::endl;
                     return std::nullopt;
                 }
                 std::optional<instance_list> data = future.get();
@@ -57,24 +41,24 @@ public:
         return list;
     }
 
-    int getFederationCount() override {
+    int misskey::getFederationCount() {
         if (this->FederationCount) {
             return this->FederationCount.value();
         } else {
-            return web::http::client::http_client(getURL() + L"/api/stats")
-                    .request(web::http::methods::POST, L"", L"{}", L"application/json")
+            return web::http::client::http_client(getURL() + STATS_PASS)
+                    .request(web::http::methods::POST, "", "{}", "application/json")
                     .get()
-                    .extract_json().get()[L"instances"].as_integer();
+                    .extract_json().get()[INSTANCES].as_integer();
         }
     }
 
-    static std::optional<instance_list> fetchFederation(const utility::string_t &URL, int offset) {
+    std::optional<api::instance_list> misskey::fetchFederation(const utility::string_t &URL, int offset) {
         std::vector<std::string> list;
-        web::http::client::http_client client(URL + L"/api/federation/instances");
+        web::http::client::http_client client(URL + INSTANCES_PATH);
         web::json::value json;
-        json[L"limit"] = instance_get_limit;
-        json[L"offset"] = offset;
-        auto response = client.request(web::http::methods::POST, L"", json.serialize(), L"application/json").get();
+        json[LIMIT] = instance_get_limit;
+        json[OFFSET] = offset;
+        auto response = client.request(web::http::methods::POST, utility::string_t() , json.serialize(), MIME_APPLICATION_JSON).get();
         std::string data = response.extract_utf8string().get();
 
         if (!(data[0] == '[' || data[0] == '{')) {
@@ -87,7 +71,7 @@ public:
         return list;
     }
 
-    std::string getDescription() override {
+    std::string misskey::getDescription() {
         if (nodeinfo["metadata"]["nodeDescription"].is_null()) {
             return "";
         } else {
@@ -95,4 +79,10 @@ public:
         }
     }
 
-};
+    const utility::string_t misskey::INSTANCES_PATH = utility::conversions::to_string_t("/api/federation/instances");
+    const utility::string_t misskey::MIME_APPLICATION_JSON = utility::conversions::to_string_t("application/json");
+    const utility::string_t misskey::STATS_PASS = utility::conversions::to_string_t("/api/stats");
+    const utility::string_t misskey::LIMIT = utility::conversions::to_string_t("limit");
+    const utility::string_t misskey::OFFSET = utility::conversions::to_string_t("offset");
+    const utility::string_t misskey::INSTANCES = utility::conversions::to_string_t("instances");
+    const utility::string_t misskey::LOG_TIMEOUT = utility::conversions::to_string_t("timeout:");

@@ -3,6 +3,7 @@
 #include <pqxx/pqxx>
 #include <sw/redis++/redis++.h>
 #include <future>
+#include <thread>
 #include "util/sql.cpp"
 
 using namespace sw::redis;
@@ -32,7 +33,7 @@ int main() {
     auto redis = Redis("tcp://127.0.0.1:6379");
 
     /* first instance... */
-    api * instance = api::getInstance(L"msky.z-n-a-k.net");
+    api * instance = api::getInstance("msky.z-n-a-k.net");
     auto list = instance->fetchAllFederation();
     if (list) {
         for (const auto &item: list.value()) {
@@ -73,7 +74,7 @@ int main() {
                 }
                 std::cout << "get: " + url << std::endl;
 
-                auto i = api::getInstance(std::wstring(url.begin(), url.end()));
+                auto i = api::getInstance(url);
                 if (i == nullptr) {
                     continue;
                 }

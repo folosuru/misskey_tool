@@ -12,7 +12,7 @@ class api {
 
 public:
 
-    static api * getInstance(const utility::string_t& URL);
+    static api * getInstance(const std::string& URL);
 
     typedef std::vector<std::string> instance_list;
 
@@ -34,6 +34,14 @@ public:
     int getUserCount();
 
     int getPostsCount();
+
+    // string for cpprestsdk...
+    static const utility::string_t HTTP_URI_SCHEME; // "https://"
+    static const utility::string_t NODEINFO_PATH;   // "/.well-known/nodeinfo"
+    static const utility::string_t MANIFEST_PATH;   // "/manifest.json"
+    static const utility::string_t LINKS;   // "links"
+    static const utility::string_t HREF;   // "href"
+
 
 protected:
 
