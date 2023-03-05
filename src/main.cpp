@@ -69,17 +69,13 @@ int main() {
                 std::string url = *keys.begin();
                 url.erase(0, 19);
                 try {
-                    try {
-                        redis.rename("misskey_tool:queue:" + url, "misskey_tool:history:" + url);
-                    } catch (std::exception &e) {
-                        std::cerr << "Redis :" << e.what() << std::endl;
-                    }
+
+                    redis.rename("misskey_tool:queue:" + url, "misskey_tool:history:" + url);
+
                     std::cout << "get: " + url << std::endl;
 
                     auto i = api::getInstance(url);
-                    if (i == nullptr) {
-                        continue;
-                    }
+
                     if (redis.get("misskey_tool:history:" + url).value() == std::to_string(i->getFederationCount())) {
                         continue;
                     }
@@ -95,6 +91,15 @@ int main() {
                         }
                     }
                     std::cout << "complete: " + url << std::endl;
+                } catch (sw::redis::Error &e) {
+                    std::cerr << "Error: redis: " << e.what() << std::endl;
+                    continue;
+                } catch (web::http::http_exception& e){
+                    std::cerr << "Error: http: " << url << " : " << e.what() << std::endl;
+                    continue;
+                } catch (nlohmann::json::exception& e){
+                    std::cerr << "Error: json: " << url << " : " << e.what() << std::endl;
+                    continue;
                 } catch (std::exception& e){
                     std::cerr << "skipped: " << url << " : " << e.what() << std::endl;
                     continue;

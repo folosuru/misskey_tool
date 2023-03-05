@@ -10,40 +10,30 @@
 
 api * api::getInstance(const std::string& URL_) {
     utility::string_t URL = utility::conversions::to_string_t(URL_);
-    try {
-        try {
-            auto nodeinfo_url = web::http::client::http_client( HTTP_URI_SCHEME + URL + NODEINFO_PATH)
+    auto nodeinfo_url = web::http::client::http_client( HTTP_URI_SCHEME + URL + NODEINFO_PATH)
+            .request(web::http::methods::GET).get()
+            .extract_json().get()[LINKS][0][HREF].as_string();
+
+    nlohmann::json nodeinfo = nlohmann::json::parse(
+            web::http::client::http_client(nodeinfo_url)
+            .request(web::http::methods::GET).get()
+            .extract_utf8string().get()
+            );
+
+    nlohmann::json manifest = nlohmann::json::parse(
+            web::http::client::http_client(HTTP_URI_SCHEME + URL + MANIFEST_PATH)
                     .request(web::http::methods::GET).get()
-                    .extract_json().get()[LINKS][0][HREF].as_string();
+                    .extract_utf8string().get());
 
-            nlohmann::json nodeinfo = nlohmann::json::parse(
-                    web::http::client::http_client(nodeinfo_url)
-                    .request(web::http::methods::GET).get()
-                    .extract_utf8string().get()
-                    );
+    auto software_name = nodeinfo["software"]["name"].is_string()
+            ? nodeinfo["software"]["name"].get<std::string>()
+            : "" ;
 
-            nlohmann::json manifest = nlohmann::json::parse(
-                    web::http::client::http_client(HTTP_URI_SCHEME + URL + MANIFEST_PATH)
-                            .request(web::http::methods::GET).get()
-                            .extract_utf8string().get());
-
-            auto software_name = nodeinfo["software"]["name"].is_string()
-                    ? nodeinfo["software"]["name"].get<std::string>()
-                    : "" ;
-
-            if (software_name == "misskey") {
-                return new misskey(URL, nodeinfo, manifest);
-            }
-
-            return new api(URL, nodeinfo, manifest);
-        } catch (std::exception& exception) {
-            std::cerr << URL_ << ":" << exception.what() << std::endl;
-            return nullptr;
-        }
-    } catch (web::http::http_exception& error) {
-        std::cerr << URL_ << ":" << error.what() << std::endl;
-        return nullptr;
+    if (software_name == "misskey") {
+        return new misskey(URL, nodeinfo, manifest);
     }
+
+    return new api(URL, nodeinfo, manifest);
 }
 
 
