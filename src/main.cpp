@@ -76,7 +76,7 @@ int main() {
 
                     auto i = api::getInstance(url);
 
-                    if (redis.get("misskey_tool:history:" + url).value() == std::to_string(i->getFederationCount())) {
+                    if (i->getFederationCount() != 0 && redis.get("misskey_tool:history:" + url).value() == std::to_string(i->getFederationCount())) {
                         continue;
                     }
                     auto list = i->fetchAllFederation();
