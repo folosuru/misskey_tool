@@ -51,6 +51,7 @@ int main() {
             pqxx::connection db("user=misskey_tool password=test");
             auto redis = Redis("tcp://127.0.0.1:6379");
             while (true) {
+
                 std::unordered_set<std::string> keys;
                 auto cursor = 0LL;
                 while (true) {
@@ -58,7 +59,7 @@ int main() {
                     if (keys.empty()) {
                         if (cursor == 0) {
                             std::cout << "empty" << std::endl;
-                            return ;
+                            return;
                         }
                         continue;
                     } else {
@@ -68,30 +69,34 @@ int main() {
                 std::string url = *keys.begin();
                 url.erase(0, 19);
                 try {
-                    redis.rename("misskey_tool:queue:" + url, "misskey_tool:history:" + url);
-                } catch (std::exception& e) {
-                    std::cerr << "Redis :" << e.what() << std::endl;
-                }
-                std::cout << "get: " + url << std::endl;
-
-                auto i = api::getInstance(url);
-                if (i == nullptr) {
-                    continue;
-                }
-                if (redis.get("misskey_tool:history:"+url).value() ==  std::to_string(i->getFederationCount())){
-                    continue;
-                }
-                auto list = i->fetchAllFederation();
-                util::sql::writeInstance(db, url, i->getUserCount(), i->getPostsCount(), i->getServerSoftware(),
-                                         i->getSummary(), i->getFederationCount());
-                if (!list) continue;
-                for (const auto &i1: list.value()) {
-                    //std::cout << i1 << std::endl;
-                    if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
-                        continue;
-                    } else {
-                        redis.set("misskey_tool:queue:" + i1, "0");
+                    try {
+                        redis.rename("misskey_tool:queue:" + url, "misskey_tool:history:" + url);
+                    } catch (std::exception &e) {
+                        std::cerr << "Redis :" << e.what() << std::endl;
                     }
+                    std::cout << "get: " + url << std::endl;
+
+                    auto i = api::getInstance(url);
+                    if (i == nullptr) {
+                        continue;
+                    }
+                    if (redis.get("misskey_tool:history:" + url).value() == std::to_string(i->getFederationCount())) {
+                        continue;
+                    }
+                    auto list = i->fetchAllFederation();
+                    util::sql::writeInstance(db, url, i->getUserCount(), i->getPostsCount(), i->getServerSoftware(),
+                                             i->getSummary(), i->getFederationCount());
+                    if (!list) continue;
+                    for (const auto &i1: list.value()) {
+                        //std::cout << i1 << std::endl;
+                        if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
+                            continue;
+                        } else {
+                            redis.set("misskey_tool:queue:" + i1, "0");
+                        }
+                    }
+                } catch (std::exception& e){
+                    continue;
                 }
             }
         }));
