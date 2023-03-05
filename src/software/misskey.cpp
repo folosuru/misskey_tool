@@ -31,6 +31,9 @@ std::optional<api::instance_list> misskey::fetchAllFederation() {
         for (auto &future: future_list) {
             if (future.wait_until(start_waiting + std::chrono::seconds(connect_timeout)) != std::future_status::ready) {
                 ucout << LOG_TIMEOUT << this->getURL() << std::endl;
+                for (auto &t: thread_list) {
+                    t.detach();
+                }
                 return std::nullopt;
             }
             std::optional<instance_list> data = future.get();
