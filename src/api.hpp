@@ -31,9 +31,13 @@ public:
 
     std::string getSummary();
 
-    int getUserCount();
+    virtual int getUserCount();
 
-    int getPostsCount();
+    virtual int getPostsCount();
+
+    virtual std::string getIcon();
+
+    virtual std::string getServerVersion();
 
     // string for cpprestsdk...
     static const utility::string_t HTTP_URI_SCHEME; // "https://"

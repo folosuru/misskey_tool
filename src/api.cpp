@@ -16,18 +16,24 @@ api * api::getInstance(const std::string& URL_) {
                     .request(web::http::methods::GET).get()
                     .extract_json().get()[LINKS][0][HREF].as_string();
 
-            nlohmann::json nodeinfo = nlohmann::json::parse(web::http::client::http_client(nodeinfo_url)
-                                                                    .request(web::http::methods::GET).get()
-                                                                    .extract_utf8string().get());
+            nlohmann::json nodeinfo = nlohmann::json::parse(
+                    web::http::client::http_client(nodeinfo_url)
+                    .request(web::http::methods::GET).get()
+                    .extract_utf8string().get()
+                    );
 
             nlohmann::json manifest = nlohmann::json::parse(
                     web::http::client::http_client(HTTP_URI_SCHEME + URL + MANIFEST_PATH)
                             .request(web::http::methods::GET).get()
                             .extract_utf8string().get());
 
-            auto software_name = nodeinfo["software"]["name"].get<std::string>();
+            auto software_name = nodeinfo["software"]["name"].is_string()
+                    ? nodeinfo["software"]["name"].get<std::string>()
+                    : "" ;
 
-            if (software_name == "misskey") return new misskey(URL, nodeinfo, manifest);
+            if (software_name == "misskey") {
+                return new misskey(URL, nodeinfo, manifest);
+            }
 
             return new api(URL, nodeinfo, manifest);
         } catch (std::exception& exception) {
@@ -54,9 +60,9 @@ api::api(const utility::string_t& URL, nlohmann::json nodeinfo , nlohmann::json 
 std::string api::getSummary() {
     nlohmann::json data;
     data["name"] = manifest["name"].get<std::string>();
-    data["icon"] = manifest["icons"][0]["src"].get<std::string>();
     data["description"] = this->getDescription();
-    data["server_version"] = nodeinfo["software"]["version"].get<std::string>();
+    data["icon"] = this->getIcon();
+    data["server_version"] = this->getServerVersion();
     return data.dump();
 }
 
@@ -65,15 +71,21 @@ std::string api::getDescription() {
 }
 
 std::string api::getServerSoftware() {
-    return nodeinfo["software"]["name"].get<std::string>();
+    return nodeinfo["software"]["name"].is_string()
+        ? nodeinfo["software"]["name"].get<std::string>()
+        : "";
 }
 
 int api::getUserCount() {
-    return nodeinfo["usage"]["users"]["total"].get<int>();
+    return nodeinfo["usage"]["users"]["total"].is_number_integer()
+        ? nodeinfo["usage"]["users"]["total"].get<int>()
+        : 0;
 }
 
 int api::getPostsCount() {
-    return nodeinfo["usage"]["localPosts"].get<int>();
+    return nodeinfo["usage"]["localPosts"].is_number_integer()
+        ? nodeinfo["usage"]["localPosts"].get<int>()
+        : 0;
 }
 
 std::optional<api::instance_list> api::fetchAllFederation(){
@@ -82,6 +94,18 @@ std::optional<api::instance_list> api::fetchAllFederation(){
 
 int api::getFederationCount(){
     return 0;
+}
+
+std::string api::getIcon() {
+    return manifest["icons"][0]["src"].is_string()
+    ? manifest["icons"][0]["src"].get<std::string>()
+    : "";
+}
+
+std::string api::getServerVersion() {
+    return nodeinfo["software"]["version"].is_string()
+    ? nodeinfo["software"]["version"].get<std::string>()
+    : "";
 }
 
 const utility::string_t api::HTTP_URI_SCHEME = utility::conversions::to_string_t("https://");
