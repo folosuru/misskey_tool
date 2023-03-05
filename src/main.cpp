@@ -76,8 +76,10 @@ int main() {
 
                     auto i = api::getInstance(url);
 
-                    if (i->getFederationCount() != 0 && redis.get("misskey_tool:history:" + url).value() == std::to_string(i->getFederationCount())) {
-                        continue;
+                    if (redis.exists("misskey_tool:history:" + url)) {
+                        if (redis.get("misskey_tool:history:" + url).value() == std::to_string(i->getFederationCount())) {
+                            continue;
+                        }
                     }
                     auto list = i->fetchAllFederation();
                     util::sql::writeInstance(db, url, i->getUserCount(), i->getPostsCount(), i->getServerSoftware(),
