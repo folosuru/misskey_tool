@@ -88,14 +88,15 @@ int main() {
                                              i->getSummary(), i->getFederationCount());
                     if (!list) continue;
                     for (const auto &i1: list.value()) {
-                        //std::cout << i1 << std::endl;
                         if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
                             continue;
                         } else {
                             redis.set("misskey_tool:queue:" + i1, "0");
                         }
                     }
+                    std::cout << "complete: " + url << std::endl;
                 } catch (std::exception& e){
+                    std::cerr << "skipped: " << url << " : " << e.what() << std::endl;
                     continue;
                 }
             }
