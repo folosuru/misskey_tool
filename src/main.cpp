@@ -5,6 +5,7 @@
 #include <future>
 #include <thread>
 #include "util/sql.hpp"
+#include "util/blacklist.hpp"
 
 using namespace sw::redis;
 
@@ -67,6 +68,9 @@ int main() {
                     }
                 }
                 std::string url = *keys.begin();
+                if (util::blacklist::isBlacklisted(url)){
+                    continue;
+                }
                 url.erase(0, 19);
                 try {
 
