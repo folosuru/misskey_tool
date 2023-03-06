@@ -70,7 +70,7 @@ int main() {
                 url.erase(0, 19);
                 try {
 
-                    redis.rename("misskey_tool:queue:" + url, "misskey_tool:history:" + url);
+                    redis.rename("misskey_tool:queue:" + url, "misskey_tool:working:" + url);
 
                     std::cout << "get: " + url << std::endl;
 
@@ -84,6 +84,7 @@ int main() {
                     auto list = i->fetchAllFederation();
                     util::sql::writeInstance(db, url, i->getUserCount(), i->getPostsCount(), i->getServerSoftware(),
                                              i->getSummary(), i->getFederationCount());
+                    redis.rename("misskey_tool:working:" + url, "misskey_tool:history:" + url);
                     if (!list) continue;
                     for (const auto &i1: list.value()) {
                         if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
