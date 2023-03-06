@@ -29,9 +29,11 @@ api * api::getInstance(const std::string& URL_) {
             ? nodeinfo["software"]["name"].get<std::string>()
             : "" ;
 
-    if (software_name == "misskey") {
-        return new misskey(URL, nodeinfo, manifest);
-    }
+    if (software_name == "misskey") return new misskey(URL, nodeinfo, manifest);
+    if (software_name == "foundkey") return new misskey(URL, nodeinfo, manifest);
+    if (software_name == "meisskey") return new misskey(URL, nodeinfo, manifest);
+    if (software_name == "calckey") return new misskey(URL, nodeinfo, manifest);
+
 
     return new api(URL, nodeinfo, manifest);
 }
