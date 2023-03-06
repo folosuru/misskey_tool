@@ -68,9 +68,6 @@ int main() {
                     }
                 }
                 std::string url = *keys.begin();
-                if (util::blacklist::isBlacklisted(url)){
-                    continue;
-                }
                 url.erase(0, 19);
                 try {
 
@@ -94,6 +91,9 @@ int main() {
                         if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
                             continue;
                         } else {
+                            if (util::blacklist::isBlacklisted(i1)){
+                                continue;
+                            }
                             redis.set("misskey_tool:queue:" + i1, "0");
                         }
                     }
