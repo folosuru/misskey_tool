@@ -37,7 +37,12 @@ std::optional<api::instance_list> misskey::fetchAllFederation() {
                 return std::nullopt;
             }
             std::optional<instance_list> data = future.get();
-            if (!data) return std::nullopt;
+            if (!data) {
+                for (auto &t: thread_list) {
+                    t.detach();
+                }
+                return std::nullopt;
+            }
             list.insert(list.end(), data.value().begin(), data.value().end());
         }
         for (auto &t: thread_list) {
