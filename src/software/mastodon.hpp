@@ -9,6 +9,9 @@
 
 class mastodon : public api {
 public:
+
+    using api::api;
+
     std::string getDescription() override;
 
     static const utility::string_t API_V1_INSTANCE;

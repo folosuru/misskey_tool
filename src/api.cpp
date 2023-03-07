@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "software/misskey.hpp"
+#include "software/mastodon.hpp"
 
 api * api::getInstance(const std::string& URL_) {
     utility::string_t URL = utility::conversions::to_string_t(URL_);
@@ -33,6 +34,13 @@ api * api::getInstance(const std::string& URL_) {
     if (software_name == "foundkey") return new misskey(URL, nodeinfo, manifest);
     if (software_name == "meisskey") return new misskey(URL, nodeinfo, manifest);
     if (software_name == "calckey") return new misskey(URL, nodeinfo, manifest);
+
+    if (software_name == "mastodon") return new mastodon(URL, nodeinfo, manifest);
+    if (software_name == "ecko") return new mastodon(URL, nodeinfo, manifest);
+    if (software_name == "Fedibird") return new mastodon(URL, nodeinfo, manifest);
+    if (software_name == "hometown") return new mastodon(URL, nodeinfo, manifest);
+
+
 
 
     return new api(URL, nodeinfo, manifest);
