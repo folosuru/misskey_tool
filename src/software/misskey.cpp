@@ -78,7 +78,9 @@ std::optional<api::instance_list> misskey::fetchFederation(const utility::string
     }
     nlohmann::json instances = nlohmann::json::parse(data);
     for (auto item: instances) {
-        list.push_back(item["host"].get<std::string>());
+        if (item["host"].is_string()) {
+            list.push_back(item["host"].get<std::string>());
+        }
     }
     return list;
 }
