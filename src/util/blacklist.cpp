@@ -6,8 +6,10 @@
 
 bool util::blacklist::isBlacklisted(std::string url) {
     for (auto i : blacklisted){
-        if (url.substr(url.length() - i.length()) == i){
-            return true;
+        if (url.length() > i.length()) {
+            if (url.substr(url.length() - i.length()) == i) {
+                return true;
+            }
         }
     }
     return false;
