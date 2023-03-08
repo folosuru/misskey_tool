@@ -65,24 +65,29 @@ int misskey::getFederationCount() {
 }
 
 std::optional<api::instance_list> misskey::fetchFederation(const utility::string_t &URL, int offset) {
-    std::vector<std::string> list;
-    web::http::client::http_client client(URL + INSTANCES_PATH);
-    web::json::value json;
-    json[LIMIT] = instance_get_limit;
-    json[OFFSET] = offset;
-    auto response = client.request(web::http::methods::POST, utility::string_t() , json.serialize(), MIME_APPLICATION_JSON).get();
-    std::string data = response.extract_utf8string().get();
+    try {
+        std::vector<std::string> list;
+        web::http::client::http_client client(URL + INSTANCES_PATH);
+        web::json::value json;
+        json[LIMIT] = instance_get_limit;
+        json[OFFSET] = offset;
+        auto response = client.request(web::http::methods::POST, utility::string_t(), json.serialize(),
+                                       MIME_APPLICATION_JSON).get();
+        std::string data = response.extract_utf8string().get();
 
-    if (!(data[0] == '[' || data[0] == '{')) {
+        if (!(data[0] == '[' || data[0] == '{')) {
+            return std::nullopt;
+        }
+        nlohmann::json instances = nlohmann::json::parse(data);
+        for (auto item: instances) {
+            if (item["host"].is_string()) {
+                list.push_back(item["host"].get<std::string>());
+            }
+        }
+        return list;
+    } catch (std::exception& e) {
         return std::nullopt;
     }
-    nlohmann::json instances = nlohmann::json::parse(data);
-    for (auto item: instances) {
-        if (item["host"].is_string()) {
-            list.push_back(item["host"].get<std::string>());
-        }
-    }
-    return list;
 }
 
 std::string misskey::getDescription() {
