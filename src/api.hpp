@@ -20,6 +20,7 @@ public:
         everyone,
         invite,
         approval,
+        deny,
         unknown,
     };
 
