@@ -19,7 +19,6 @@ public:
     enum register_status {
         everyone,
         invite,
-        deny,
         unknown,
     };
 
