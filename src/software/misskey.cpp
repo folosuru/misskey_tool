@@ -98,15 +98,20 @@ std::string misskey::getDescription() {
     }
 }
 api::register_status misskey::getRegisterStatus() {
-    bool registration = web::http::client::http_client(getURL() + META_PASS)
-            .request(web::http::methods::POST, "", "{}", "application/json")
-            .get()
-            .extract_json().get()[utility::conversions::to_string_t("features")][utility::conversions::to_string_t("registration")]
-            .as_bool();
-    if (registration){
-        return api::register_status::everyone;
-    } else {
-        return api::register_status::invite;
+    try {
+        bool registration = web::http::client::http_client(getURL() + META_PASS)
+                .request(web::http::methods::POST, "", "{}", "application/json")
+                .get()
+                .extract_json().get()[utility::conversions::to_string_t("features")][utility::conversions::to_string_t(
+                "registration")]
+                .as_bool();
+        if (registration) {
+            return api::register_status::everyone;
+        } else {
+            return api::register_status::invite;
+        }
+    } catch (std::exception& e){
+        return api::register_status::unknown;
     }
 }
 
