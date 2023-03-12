@@ -3,6 +3,7 @@
 //
 
 #include "sql.hpp"
+#include "util.cpp"
 #include <iostream>
 
 bool util::sql::isExistByDomain(pqxx::connection& connection , const std::string& domain) {
@@ -17,13 +18,13 @@ void util::sql::writeInstance(pqxx::connection& connection, api* api) {
     work.exec("insert into instance_list "
               "(domain, user_count, post_count, software, federation_count, description, icon, server_version, name, register, language) "
               "VALUES("
-              + work.quote(utility::conversions::to_utf8string(api->getDomain())) + ","
+              + work.quote(api->getDomain()) + ","
               + work.quote(api->getUserCount()) + " , "
               + work.quote(api->getPostsCount()) + " , "
               + work.quote(api->getServerSoftware()) + " , "
               + work.quote(api->getFederationCount()) + " , "
               + work.quote(api->getDescription()) + " , "
-              + work.quote(api->getIcon()) + " , "
+              + work.quote(util::addScheme(api->getIcon() , api->getDomain())) + " , "
               + work.quote(api->getServerVersion()) + " , "
               + work.quote(api->getName()) + " , "
               + work.quote(static_cast<int>(api->getRegisterStatus())) + " , "

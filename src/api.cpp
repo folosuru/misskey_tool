@@ -108,8 +108,8 @@ std::string api::getServerVersion() {
     : "";
 }
 
-utility::string_t api::getDomain() {
-    return URL;
+std::string api::getDomain() {
+    return utility::conversions::to_utf8string(URL);
 }
 
 const utility::string_t api::HTTP_URI_SCHEME = utility::conversions::to_string_t("https://");

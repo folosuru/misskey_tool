@@ -34,7 +34,7 @@ public:
 
     utility::string_t getURL();
 
-    utility::string_t getDomain();
+    std::string getDomain();
 
     std::string getName();
 
