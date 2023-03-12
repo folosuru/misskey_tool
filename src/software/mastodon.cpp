@@ -12,8 +12,8 @@ std::string mastodon::getDescription() {
     }
     std::string description_v2 = web::http::client::http_client(getURL() + API_V2_INSTANCE)
             .request(web::http::methods::GET).get().extract_utf8string().get();
-    if (description_v1[0] == '[' || description_v1[0] == '{') {
-        return nlohmann::json::parse(description_v1)["description"].get<std::string>();
+    if (description_v2[0] == '[' || description_v2[0] == '{') {
+        return nlohmann::json::parse(description_v2)["description"].get<std::string>();
     }
     return "";
 }
