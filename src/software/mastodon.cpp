@@ -20,3 +20,29 @@ std::string mastodon::getDescription() {
 
 const utility::string_t mastodon::API_V1_INSTANCE = utility::conversions::to_string_t("/api/v1/instance");
 const utility::string_t mastodon::API_V2_INSTANCE = utility::conversions::to_string_t("/api/v2/instance");
+const utility::string_t mastodon::API_PEERS = utility::conversions::to_string_t("/api/v1/instance/peers");
+
+
+std::optional<api::instance_list> mastodon::fetchAllFederation() {
+    return getPeers();
+}
+
+api::instance_list mastodon::getPeers() {
+    if (peers){
+        return peers.value();
+    }
+
+    nlohmann::json json = nlohmann::json::parse(
+            web::http::client::http_client(getURL() + API_PEERS)
+            .request(web::http::methods::GET).get().extract_utf8string().get()
+            );
+    peers = instance_list();
+    for (auto& i : json){
+        peers->push_back(i.get<std::string>());
+    }
+    return peers.value();
+}
+
+int mastodon::getFederationCount() {
+    return static_cast<int>(getPeers().size());
+}
