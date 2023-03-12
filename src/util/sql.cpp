@@ -49,9 +49,6 @@ void util::sql::initDB() {
             " language text,"
             " UNIQUE(domain));");
     tx.commit();
-    pqxx::work createIndex(c);
-    createIndex.exec("CREATE INDEX IF NOT EXISTS domain_name_index ON instance_list (domain);");
-    createIndex.commit();
     c.close();
 }
 
