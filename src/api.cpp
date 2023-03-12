@@ -108,8 +108,20 @@ std::string api::getServerVersion() {
     : "";
 }
 
+utility::string_t api::getDomain() {
+    return URL;
+}
+
 const utility::string_t api::HTTP_URI_SCHEME = utility::conversions::to_string_t("https://");
 const utility::string_t api::NODEINFO_PATH = utility::conversions::to_string_t("/.well-known/nodeinfo");
 const utility::string_t api::MANIFEST_PATH = utility::conversions::to_string_t("/manifest.json");
 const utility::string_t api::LINKS = utility::conversions::to_string_t("links");
 const utility::string_t api::HREF = utility::conversions::to_string_t("href");
+
+std::string api::getName() {
+    return manifest["name"].get<std::string>();;
+}
+
+api::register_status api::getRegisterStatus() {
+    return api::unknown;
+}

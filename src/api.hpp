@@ -16,6 +16,13 @@ public:
 
     typedef std::vector<std::string> instance_list;
 
+    enum register_status {
+        everyone,
+        invite,
+        deny,
+        unknown,
+    };
+
     api() = delete;
     api(const utility::string_t& URL , nlohmann::json nodeinfo , nlohmann::json manifest);
 
@@ -26,6 +33,12 @@ public:
     virtual std::string getDescription();
 
     utility::string_t getURL();
+
+    utility::string_t getDomain();
+
+    std::string getName();
+
+    virtual api::register_status getRegisterStatus();
 
     std::string getServerSoftware();
 

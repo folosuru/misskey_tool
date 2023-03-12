@@ -97,6 +97,18 @@ std::string misskey::getDescription() {
         return nodeinfo["metadata"]["nodeDescription"].get<std::string>();
     }
 }
+api::register_status misskey::getRegisterStatus() {
+    bool registration = web::http::client::http_client(getURL() + META_PASS)
+            .request(web::http::methods::POST, "", "{}", "application/json")
+            .get()
+            .extract_json().get()[utility::conversions::to_string_t("features")][utility::conversions::to_string_t("registration")]
+            .as_bool();
+    if (registration){
+        return api::register_status::everyone;
+    } else {
+        return api::register_status::invite;
+    }
+}
 
 const utility::string_t misskey::INSTANCES_PATH = utility::conversions::to_string_t("/api/federation/instances");
 const utility::string_t misskey::MIME_APPLICATION_JSON = utility::conversions::to_string_t("application/json");
@@ -105,3 +117,5 @@ const utility::string_t misskey::LIMIT = utility::conversions::to_string_t("limi
 const utility::string_t misskey::OFFSET = utility::conversions::to_string_t("offset");
 const utility::string_t misskey::INSTANCES = utility::conversions::to_string_t("instances");
 const utility::string_t misskey::LOG_TIMEOUT = utility::conversions::to_string_t("timeout:");
+const utility::string_t misskey::META_PASS = utility::conversions::to_string_t("/api/meta");
+

@@ -11,22 +11,7 @@ using namespace sw::redis;
 
 int main() {
     try{
-        pqxx::connection c("user=misskey_tool password=test");
-        std::cout << "Connected to " << c.dbname() << '\n';
-        pqxx::work tx(c);
-        tx.exec("create table IF NOT EXISTS instance_list ("
-                " domain text ,"
-                " user_count int,"
-                " post_count int,"
-                " software text,"
-                " data text,"
-                " federation_count int"
-                " ,UNIQUE(domain));");
-        tx.commit();
-        pqxx::work createIndex(c);
-        createIndex.exec("CREATE INDEX IF NOT EXISTS domain_name_index ON instance_list (domain);");
-        createIndex.commit();
-        c.close();
+        util::sql::initDB();
     } catch (std::exception const &e){
         std::cerr << "Database setup error: " << e.what() << std::endl;
         return 1;
@@ -47,9 +32,8 @@ int main() {
     for (int i = 0; i < 30; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         thread_list.emplace_back(std::thread([] {
-
             std::cout << "start thread..." << std::endl;
-            pqxx::connection db("user=misskey_tool password=test");
+            pqxx::connection db = util::sql::createConnection();
             auto redis = Redis("tcp://127.0.0.1:6379");
             while (true) {
 
@@ -83,8 +67,7 @@ int main() {
                         }
                     }
                     auto list = i->fetchAllFederation();
-                    util::sql::writeInstance(db, url, i->getUserCount(), i->getPostsCount(), i->getServerSoftware(),
-                                             i->getSummary(), i->getFederationCount());
+                    util::sql::writeInstance(db,i);
                     redis.rename("misskey_tool:working:" + url, "misskey_tool:history:" + url);
                     if (!list) continue;
                     for (const auto &i1: list.value()) {

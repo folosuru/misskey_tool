@@ -23,6 +23,8 @@ public:
 
     int getFederationCount() override;
 
+    api::register_status getRegisterStatus() override;
+
     static std::optional<instance_list> fetchFederation(const utility::string_t &URL, int offset);
 
 
@@ -35,6 +37,7 @@ public:
     static const utility::string_t OFFSET;
     static const utility::string_t INSTANCES;
     static const utility::string_t LOG_TIMEOUT;
+    static const utility::string_t META_PASS;
 
 
 };
