@@ -14,7 +14,7 @@ bool util::sql::isExistByDomain(pqxx::connection& connection , const std::string
 
 void util::sql::writeInstance(pqxx::connection& connection, api* api) {
     pqxx::work work(connection);
-    work.exec("insert into instance_list_ "
+    work.exec("insert into instance_list "
               "(domain, user_count, post_count, software, federation_count, description, icon, server_version, name, register, language) "
               "VALUES("
               + work.quote(utility::conversions::to_utf8string(api->getDomain())) + ","
