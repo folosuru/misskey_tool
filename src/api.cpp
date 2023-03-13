@@ -8,6 +8,7 @@
 
 #include "software/misskey.hpp"
 #include "software/mastodon.hpp"
+#include "software/pleroma.hpp"
 
 api * api::getInstance(const std::string& URL_) {
     utility::string_t URL = utility::conversions::to_string_t(URL_);
@@ -39,6 +40,8 @@ api * api::getInstance(const std::string& URL_) {
     if (software_name == "ecko") return new mastodon(URL, nodeinfo, manifest);
     if (software_name == "Fedibird") return new mastodon(URL, nodeinfo, manifest);
     if (software_name == "hometown") return new mastodon(URL, nodeinfo, manifest);
+
+    if (software_name == "pleroma") return new pleroma(URL, nodeinfo, manifest);
 
 
 
