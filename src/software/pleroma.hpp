@@ -1,6 +1,7 @@
 //
 // Created by folosuru on 2023/03/12.
 //
+#pragma once
 #include "../api.hpp"
 
 class pleroma : public api{

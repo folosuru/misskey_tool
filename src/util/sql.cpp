@@ -3,7 +3,7 @@
 //
 
 #include "sql.hpp"
-#include "util.cpp"
+#include "util.hpp"
 #include <iostream>
 
 bool util::sql::isExistByDomain(pqxx::connection& connection , const std::string& domain) {
