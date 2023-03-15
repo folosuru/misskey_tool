@@ -5,7 +5,7 @@
 
 const int misskey::instance_get_limit = 100;
 const int misskey::access_thread_limit = 10;
-const int misskey::connect_timeout = 5;
+const int misskey::connect_timeout = 20;
 
 std::optional<api::instance_list> misskey::fetchAllFederation() {
     // get federation from /api/stats .
