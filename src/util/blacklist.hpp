@@ -17,7 +17,7 @@ namespace util {
         const std::vector<std::string> blacklisted = {
                 "activitypub-troll.cf",
                 "misskey-forkbomb.cf",
-                "repl.co"
+                "repl.co",
                 "gab.best"
         };
 
