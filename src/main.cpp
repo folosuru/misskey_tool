@@ -58,9 +58,12 @@ int main() {
                     redis.rename("misskey_tool:queue:" + url, "misskey_tool:working:" + url);
 
                     std::cout << "get: " + url << std::endl;
-
-                    auto i = api::getInstance(url);
-
+                    api* i;
+                    try {
+                        i = api::getInstance(url);
+                    } catch (std::exception &exception) {
+                        std::cout << "Error: Cannot access resource: " + url << std::endl;
+                    }
                     if (redis.exists("misskey_tool:history:" + url)) {
                         if (redis.get("misskey_tool:history:" + url).value() == std::to_string(i->getFederationCount())) {
                             continue;

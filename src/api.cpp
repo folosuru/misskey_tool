@@ -12,18 +12,20 @@
 
 api * api::getInstance(const std::string& URL_) {
     utility::string_t URL = utility::conversions::to_string_t(URL_);
-    auto nodeinfo_url = web::http::client::http_client( HTTP_URI_SCHEME + URL + NODEINFO_PATH)
+    web::http::client::http_client_config conf;
+    conf.set_timeout(std::chrono::seconds(10));
+    auto nodeinfo_url = web::http::client::http_client( HTTP_URI_SCHEME + URL + NODEINFO_PATH , conf)
             .request(web::http::methods::GET).get()
             .extract_json().get()[LINKS][0][HREF].as_string();
 
     nlohmann::json nodeinfo = nlohmann::json::parse(
-            web::http::client::http_client(nodeinfo_url)
+            web::http::client::http_client(nodeinfo_url,conf)
             .request(web::http::methods::GET).get()
             .extract_utf8string().get()
             );
 
     nlohmann::json manifest = nlohmann::json::parse(
-            web::http::client::http_client(HTTP_URI_SCHEME + URL + MANIFEST_PATH)
+            web::http::client::http_client(HTTP_URI_SCHEME + URL + MANIFEST_PATH , conf)
                     .request(web::http::methods::GET).get()
                     .extract_utf8string().get());
 
