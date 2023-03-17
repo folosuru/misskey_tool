@@ -53,32 +53,33 @@ int main() {
                 }
                 std::string url = *keys.begin();
                 url.erase(0, 19);
+
+                redis.rename("misskey_tool:queue:" + url, "misskey_tool:working:" + url);
+
+                std::cout << "get: " + url << std::endl;
+                api* i;
                 try {
-
-                    redis.rename("misskey_tool:queue:" + url, "misskey_tool:working:" + url);
-
-                    std::cout << "get: " + url << std::endl;
-                    api* i;
-                    try {
-                        i = api::getInstance(url);
-                    } catch (std::exception &exception) {
-                        std::cout << "Error: Cannot access resource: " + url << std::endl;
-                        continue;
-                    }
+                    i = api::getInstance(url);
+                } catch (std::exception &exception) {
+                    std::cout << "Error: Cannot access resource: " + url << std::endl;
+                    continue;
+                }
+                try {
                     if (redis.exists("misskey_tool:history:" + url)) {
-                        if (redis.get("misskey_tool:history:" + url).value() == std::to_string(i->getFederationCount())) {
+                        if (redis.get("misskey_tool:history:" + url).value() ==
+                            std::to_string(i->getFederationCount())) {
                             continue;
                         }
                     }
                     auto list = i->fetchAllFederation();
-                    util::sql::writeInstance(db,i);
+                    util::sql::writeInstance(db, i);
                     redis.rename("misskey_tool:working:" + url, "misskey_tool:history:" + url);
                     if (!list) continue;
                     for (const auto &i1: list.value()) {
                         if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
                             continue;
                         } else {
-                            if (util::blacklist::isBlacklisted(i1)){
+                            if (util::blacklist::isBlacklisted(i1)) {
                                 continue;
                             }
                             redis.set("misskey_tool:queue:" + i1, "0");
@@ -87,17 +88,17 @@ int main() {
                     std::cout << "complete: " + url << std::endl;
                 } catch (sw::redis::Error &e) {
                     std::cerr << "Error: redis: " << e.what() << std::endl;
-                    continue;
-                } catch (web::http::http_exception& e){
-                    std::cerr << "Error: http: " << url << " : " << e.what() << std::endl;
-                    continue;
-                } catch (nlohmann::json::exception& e){
-                    std::cerr << "Error: json: " << url << " : " << e.what() << std::endl;
-                    continue;
-                } catch (std::exception& e){
-                    std::cerr << "skipped: " << url << " : " << e.what() << std::endl;
-                    continue;
+                } catch (std::exception& e) {
+                    if (typeid(e) == typeid(web::http::http_exception)) {
+                        std::cerr << "Error: http: " << url << " : " << e.what() << std::endl;
+                    } else if (typeid(e) == typeid(nlohmann::json::exception)) {
+                        std::cerr << "Error: json: " << url << " : " << e.what() << std::endl;
+                    } else {
+                        std::cerr << "Error: other: " << url << " : " << e.what() << std::endl;
+                    }
+                    redis.rename("misskey_tool:history:" + url, "misskey_tool:fail:" + url);
                 }
+                delete i;
             }
         }));
 
