@@ -70,13 +70,17 @@ int main() {
                     if (redis.exists("misskey_tool:history:" + url)) {
                         if (redis.get("misskey_tool:history:" + url).value() ==
                             std::to_string(i->getFederationCount())) {
+                            delete i;
                             continue;
                         }
                     }
                     auto list = i->fetchAllFederation();
                     util::sql::writeInstance(db, i);
                     redis.rename("misskey_tool:working:" + url, "misskey_tool:history:" + url);
-                    if (!list) continue;
+                    if (!list) {
+                        delete i;
+                        continue;
+                    };
                     for (const auto &i1: list.value()) {
                         if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
                             continue;
