@@ -96,7 +96,7 @@ int main() {
                     } else {
                         std::cerr << "Error: other: " << url << " : " << e.what() << std::endl;
                     }
-                    redis.rename("misskey_tool:history:" + url, "misskey_tool:fail:" + url);
+                    redis.rename("misskey_tool:working:" + url, "misskey_tool:fail:" + url);
                 }
                 delete i;
             }
