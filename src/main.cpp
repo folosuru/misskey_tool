@@ -53,9 +53,11 @@ int main() {
                 }
                 std::string url = *keys.begin();
                 url.erase(0, 19);
-
-                redis.rename("misskey_tool:queue:" + url, "misskey_tool:working:" + url);
-
+                try {
+                    redis.rename("misskey_tool:queue:" + url, "misskey_tool:working:" + url);
+                } catch (sw::redis::ReplyError &e) {
+                    continue;
+                }
                 std::cout << "get: " + url << std::endl;
                 api* i;
                 try {
@@ -96,7 +98,9 @@ int main() {
                     } else {
                         std::cerr << "Error: other: " << url << " : " << e.what() << std::endl;
                     }
-                    redis.rename("misskey_tool:working:" + url, "misskey_tool:fail:" + url);
+                    if (redis.exists("misskey_tool:working:" + url)) {
+                        redis.rename("misskey_tool:working:" + url, "misskey_tool:fail:" + url);
+                    }
                 }
                 delete i;
             }
