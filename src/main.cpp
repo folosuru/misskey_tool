@@ -64,7 +64,9 @@ int main() {
                     i = api::getInstance(url);
                 } catch (std::exception &exception) {
                     std::cout << "Error: Cannot access resource: " + url << std::endl;
-                    redis.rename("misskey_tool:working:" + url, "misskey_tool:fail:" + url);
+                    try {
+                        redis.rename("misskey_tool:working:" + url, "misskey_tool:fail:" + url);
+                    } catch (sw::redis::ReplyError &e) {}
                     continue;
                 }
                 try {
@@ -103,7 +105,9 @@ int main() {
                     } else {
                         std::cerr << "Error: other: " << url << " : " << e.what() << std::endl;
                     }
-                    redis.rename("misskey_tool:working:" + url, "misskey_tool:fail:" + url);
+                    try{
+                        redis.rename("misskey_tool:working:" + url, "misskey_tool:fail:" + url);
+                    } catch (sw::redis::ReplyError &error) {}
                 }
                 delete i;
             }
