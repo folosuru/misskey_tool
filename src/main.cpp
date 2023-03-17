@@ -64,6 +64,7 @@ int main() {
                     i = api::getInstance(url);
                 } catch (std::exception &exception) {
                     std::cout << "Error: Cannot access resource: " + url << std::endl;
+                    redis.rename("misskey_tool:working:" + url, "misskey_tool:fail:" + url);
                     continue;
                 }
                 try {
