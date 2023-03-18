@@ -13,7 +13,6 @@
 api * api::getInstance(const std::string& URL_) {
     utility::string_t URL = utility::conversions::to_string_t(URL_);
     web::http::client::http_client_config conf;
-    conf.set_timeout(std::chrono::seconds(10));
     auto nodeinfo_url = nlohmann::json::parse(web::http::client::http_client( HTTP_URI_SCHEME + URL + NODEINFO_PATH , conf)
             .request(web::http::methods::GET).get().extract_utf8string().get())
             ["links"][0]["href"].get<std::string>();
