@@ -43,7 +43,6 @@ public:
 
     std::string getServerSoftware();
 
-    std::string getSummary();
 
     virtual int getUserCount();
 

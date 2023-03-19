@@ -61,14 +61,6 @@ api::api(const utility::string_t& URL, nlohmann::json nodeinfo , nlohmann::json 
     this->manifest = std::move(manifest);
 }
 
-std::string api::getSummary() {
-    nlohmann::json data;
-    data["name"] = manifest["name"].get<std::string>();
-    data["description"] = this->getDescription();
-    data["icon"] = this->getIcon();
-    data["server_version"] = this->getServerVersion();
-    return data.dump();
-}
 
 std::string api::getDescription() {
     return "";
