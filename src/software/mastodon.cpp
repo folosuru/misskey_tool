@@ -66,9 +66,5 @@ std::pair<nlohmann::json, mastodon::api_version> mastodon::getInstance() {
 }
 
 std::string mastodon::getIcon(){
-    if (getInstance().second == mastodon::api_version::v1){
-        //...
-    } else {
-        //...
-    }
+    return getURL + "/favicon.ico"
 }

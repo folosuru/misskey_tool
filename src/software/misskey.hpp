@@ -27,6 +27,8 @@ public:
 
     static std::optional<instance_list> fetchFederation(const utility::string_t &URL, int offset);
 
+    std::string getIcon() override;
+
 
     std::string getDescription() override;
 
