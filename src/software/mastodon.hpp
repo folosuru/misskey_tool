@@ -29,7 +29,7 @@ public:
 
     std::string getName() override;
 
-    nlohmann::json getInstance();
+    std::pair<nlohmann::json, mastodon::api_version> getInstance();
 
 private:
     static const utility::string_t API_V1_INSTANCE;
