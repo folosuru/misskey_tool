@@ -46,3 +46,11 @@ api::instance_list mastodon::getPeers() {
 int mastodon::getFederationCount() {
     return static_cast<int>(getPeers().size());
 }
+
+std::string mastodon::getIcon(){
+    if (getInstance().second == mastodon::api_version::v1){
+        //...
+    } else {
+        //...
+    }
+}

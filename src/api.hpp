@@ -37,7 +37,7 @@ public:
 
     std::string getDomain();
 
-    std::string getName();
+    virtual std::string getName();
 
     virtual api::register_status getRegisterStatus();
 
