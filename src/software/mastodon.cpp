@@ -6,6 +6,13 @@
 
 std::string mastodon::getDescription() {
 
+    if (getInstance().second == mastodon:api_version::v2){
+        return getInstance().first["description"].get<std::string>();
+    }
+
+    if (getInstance().second == mastodon:api_version::v1){
+        return getInstance().first["short_description"].get<std::string>();
+    }
     return "";
 }
 
