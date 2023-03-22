@@ -5,16 +5,7 @@
 #include "mastodon.hpp"
 
 std::string mastodon::getDescription() {
-    std::string description_v1 = web::http::client::http_client(getURL() + API_V1_INSTANCE)
-        .request(web::http::methods::GET).get().extract_utf8string().get();
-    if (description_v1[0] == '[' || description_v1[0] == '{') {
-        return nlohmann::json::parse(description_v1)["short_description"].get<std::string>();
-    }
-    std::string description_v2 = web::http::client::http_client(getURL() + API_V2_INSTANCE)
-            .request(web::http::methods::GET).get().extract_utf8string().get();
-    if (description_v2[0] == '[' || description_v2[0] == '{') {
-        return nlohmann::json::parse(description_v2)["description"].get<std::string>();
-    }
+
     return "";
 }
 
@@ -45,6 +36,26 @@ api::instance_list mastodon::getPeers() {
 
 int mastodon::getFederationCount() {
     return static_cast<int>(getPeers().size());
+}
+
+std::pair<nlohmann::json, mastodon::api_version> mastodon::getInstance() {
+    if (instance) {
+        return instance.value()
+    }
+
+    std::string instance_v2 = web::http::client::http_client(getURL() + API_V2_INSTANCE)
+            .request(web::http::methods::GET).get().extract_utf8string().get();
+    if (instance_v2[0] == '[' || instance_v2[0] == '{') {
+        instance = std::pair<nlohmann::json , api_version>(nlohmann::json::parse(instance_v2), mastodon::api_version::v2);
+        return instance.value()
+    }
+
+    std::string instance_v1 = web::http::client::http_client(getURL() + API_V1_INSTANCE)
+        .request(web::http::methods::GET).get().extract_utf8string().get();
+    if (instance_v1[0] == '[' || instance_v1[0] == '{') {
+        instance = std::pair<nlohmann::json , api_version>(nlohmann::json::parse(instance_v1) , mastodon::api_version::v1);
+        return instance.value()
+    }
 }
 
 std::string mastodon::getIcon(){
