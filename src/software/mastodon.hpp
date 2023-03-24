@@ -13,7 +13,7 @@ public:
     enum class api_version {
         v1,
         v2
-    }
+    };
 
     using api::api;
 

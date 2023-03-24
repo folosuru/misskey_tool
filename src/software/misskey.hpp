@@ -30,6 +30,8 @@ public:
     std::string getIcon() override;
 
 
+    std::string getName() override;
+
     std::string getDescription() override;
 
     static const utility::string_t INSTANCES_PATH;
@@ -41,5 +43,7 @@ public:
     static const utility::string_t LOG_TIMEOUT;
     static const utility::string_t META_PASS;
 
-
+private:
+    nlohmann::json getMeta();
+    std::optional<nlohmann::json> meta;
 };
