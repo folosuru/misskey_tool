@@ -37,7 +37,7 @@ public:
 
     std::string getDomain();
 
-    std::string getName();
+    virtual std::string getName();
 
     virtual api::register_status getRegisterStatus();
 
@@ -53,7 +53,7 @@ public:
     virtual std::string getServerVersion();
 
     // string for cpprestsdk...
-    static const utility::string_t HTTP_URI_SCHEME; // "https://"
+    static const utility::string_t HTTPS_URI_SCHEME; // "https://"
     static const utility::string_t NODEINFO_PATH;   // "/.well-known/nodeinfo"
     static const utility::string_t MANIFEST_PATH;   // "/manifest.json"
     static const utility::string_t LINKS;   // "links"
