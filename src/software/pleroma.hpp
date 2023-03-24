@@ -26,6 +26,8 @@ public:
 
     std::string getName() override;
 
+    std::string getServerVersion() override;
+
     std::pair<nlohmann::json, pleroma::api_version> getInstance();
 
 private:

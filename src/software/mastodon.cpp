@@ -74,3 +74,7 @@ std::string mastodon::getIcon(){
 std::string mastodon::getName() {
     return getInstance().first["title"].get<std::string>();
 }
+
+std::string mastodon::getServerVersion() {
+    return getInstance().first["version"].get<std::string>();
+}

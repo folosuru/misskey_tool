@@ -29,6 +29,8 @@ public:
 
     std::string getName() override;
 
+    std::string getServerVersion() override;
+
     std::pair<nlohmann::json, mastodon::api_version> getInstance();
 
 private:

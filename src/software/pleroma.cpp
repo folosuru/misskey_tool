@@ -74,3 +74,7 @@ std::string pleroma::getIcon(){
 std::string pleroma::getName() {
     return getInstance().first["title"].get<std::string>();
 }
+
+std::string mastodon::getServerVersion() {
+    return getInstance().first["version"].get<std::string>();
+}
