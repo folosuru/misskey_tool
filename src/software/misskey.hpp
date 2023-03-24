@@ -27,6 +27,10 @@ public:
 
     static std::optional<instance_list> fetchFederation(const utility::string_t &URL, int offset);
 
+    std::string getIcon() override;
+
+
+    std::string getName() override;
 
     std::string getDescription() override;
 
@@ -39,5 +43,7 @@ public:
     static const utility::string_t LOG_TIMEOUT;
     static const utility::string_t META_PASS;
 
-
+private:
+    nlohmann::json getMeta();
+    std::optional<nlohmann::json> meta;
 };

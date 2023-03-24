@@ -99,12 +99,7 @@ std::string misskey::getDescription() {
 }
 api::register_status misskey::getRegisterStatus() {
     try {
-        bool registration = web::http::client::http_client(getURL() + META_PASS)
-                .request(web::http::methods::POST, "", "{}", "application/json")
-                .get()
-                .extract_json().get()[utility::conversions::to_string_t("features")][utility::conversions::to_string_t(
-                "registration")]
-                .as_bool();
+        bool registration = getMeta()["features"]["registration"].get<bool>();
         if (registration) {
             return api::register_status::everyone;
         } else {
@@ -123,4 +118,25 @@ const utility::string_t misskey::OFFSET = utility::conversions::to_string_t("off
 const utility::string_t misskey::INSTANCES = utility::conversions::to_string_t("instances");
 const utility::string_t misskey::LOG_TIMEOUT = utility::conversions::to_string_t("timeout:");
 const utility::string_t misskey::META_PASS = utility::conversions::to_string_t("/api/meta");
+
+nlohmann::json misskey::getMeta() {
+    if (!meta) {
+        meta = nlohmann::json::parse(web::http::client::http_client(getURL() + META_PASS)
+                                      .request(web::http::methods::POST, "", "{}", "application/json")
+                                      .get().extract_utf8string().get());
+    }
+    return meta.value();
+}
+
+std::string misskey::getIcon() {
+    if (!getMeta()["iconUrl"].is_null()) {
+        return getMeta()["iconUrl"].get<std::string>();
+    } else {
+        return "/favicon.ico";
+    }
+}
+
+std::string misskey::getName() {
+    return getMeta()["name"].get<std::string>();
+}
 
