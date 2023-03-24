@@ -23,11 +23,15 @@ api * api::getInstance(const std::string& URL_) {
             .extract_utf8string().get()
             );
 
-    nlohmann::json manifest = nlohmann::json::parse(
-            web::http::client::http_client(HTTP_URI_SCHEME + URL + MANIFEST_PATH , conf)
-                    .request(web::http::methods::GET).get()
-                    .extract_utf8string().get());
-
+    nlohmann::json manifest;
+    try {
+        manifest = nlohmann::json::parse(
+                web::http::client::http_client(HTTP_URI_SCHEME + URL + MANIFEST_PATH, conf)
+                        .request(web::http::methods::GET).get()
+                        .extract_utf8string().get());
+    } catch (...){
+        manifest = nlohmann::json();
+    }
     auto software_name = nodeinfo["software"]["name"].is_string()
             ? nodeinfo["software"]["name"].get<std::string>()
             : "" ;
