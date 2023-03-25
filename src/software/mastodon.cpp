@@ -53,7 +53,7 @@ std::pair<nlohmann::json, mastodon::api_version> mastodon::getInstance() {
     std::string instance_v2 = web::http::client::http_client(getURL() + API_V2_INSTANCE)
             .request(web::http::methods::GET).get().extract_utf8string().get();
     if (instance_v2[0] == '[' || instance_v2[0] == '{') {
-        instance = std::pair<nlohmann::json, api_version>(nlohmann::json::parse(instance_v2), mastodon::api_version::v2);
+        instance = std::pair<nlohmann::json, api_version>(nlohmann::json::parse(instance_v2), pleroma::api_version::v2);
         if (!instance.value().first["version"].is_null()) {
             return instance.value();
         }
@@ -62,7 +62,7 @@ std::pair<nlohmann::json, mastodon::api_version> mastodon::getInstance() {
             .request(web::http::methods::GET).get().extract_utf8string().get();
     if (instance_v1[0] == '[' || instance_v1[0] == '{') {
         instance = std::pair<nlohmann::json, api_version>(nlohmann::json::parse(instance_v1),
-                                                          mastodon::api_version::v1);
+                                                          pleroma::api_version::v1);
         if (!instance.value().first["version"].is_null()) {
             return instance.value();
         }
