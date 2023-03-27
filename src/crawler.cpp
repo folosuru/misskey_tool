@@ -2,7 +2,6 @@
 #include "software_api/api.hpp"
 #include <pqxx/pqxx>
 #include <sw/redis++/redis++.h>
-#include <future>
 #include <thread>
 #include "util/sql.hpp"
 #include "util/blacklist.hpp"
@@ -83,7 +82,7 @@ int main() {
                     if (!list) {
                         delete i;
                         continue;
-                    };
+                    }
                     for (const auto &i1: list.value()) {
                         if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
                             continue;

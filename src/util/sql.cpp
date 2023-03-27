@@ -4,7 +4,6 @@
 
 #include "sql.hpp"
 #include "util.hpp"
-#include <iostream>
 
 bool util::sql::isExistByDomain(pqxx::connection& connection , const std::string& domain) {
     pqxx::work work(connection);

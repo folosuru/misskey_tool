@@ -23,5 +23,5 @@ namespace util {
 
         bool isBlacklisted(std::string url);
 
-    };
+    }
 }
