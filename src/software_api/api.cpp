@@ -6,9 +6,9 @@
 
 #include <utility>
 
-#include "software/misskey.hpp"
-#include "software/mastodon.hpp"
-#include "software/pleroma.hpp"
+#include "misskey.hpp"
+#include "mastodon.hpp"
+#include "pleroma.hpp"
 
 api * api::getInstance(const std::string& URL_) {
     utility::string_t URL = utility::conversions::to_string_t(URL_);
