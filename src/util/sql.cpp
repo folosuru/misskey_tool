@@ -56,3 +56,20 @@ void util::sql::initDB() {
 pqxx::connection util::sql::createConnection() {
     return pqxx::connection("user=misskey_tool password=test");
 }
+
+void util::sql::updateInstance(pqxx::connection &connection, api *api) {
+    pqxx::work work(connection);
+    work.exec("update instance_list set "
+              "user_count = " + work.quote(api->getUserCount()) + " , "
+              "post_count = " + work.quote(api->getPostsCount()) + " , "
+              "software = " + work.quote(api->getServerSoftware()) + " , "
+              "federation_count = " + work.quote(api->getFederationCount()) + " , "
+              "description = " + work.quote(api->getDescription()) + " , "
+              "icon = " + work.quote(util::addScheme(api->getIcon() , api->getDomain())) + " , "
+              "server_version = " + work.quote(api->getServerVersion()) + " , "
+              "name = " + work.quote(api->getName()) + " , "
+              "register = " + work.quote(static_cast<int>(api->getRegisterStatus())) +
+              "where domain = " + work.quote(api->getDomain()) + ";"
+    );
+    work.commit();
+}

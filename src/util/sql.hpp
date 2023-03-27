@@ -5,7 +5,7 @@
 
 #include <string>
 #include <pqxx/pqxx>
-#include "../api.hpp"
+#include "../software_api/api.hpp"
 
 
 namespace util::sql {
@@ -25,4 +25,6 @@ namespace util::sql {
                        int federation_count);
 
     void writeInstance(pqxx::connection &connection, api* api);
+
+    void updateInstance(pqxx::connection &connection, api* api);
 }
