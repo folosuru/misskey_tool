@@ -1,13 +1,10 @@
 //
-// Created by folosuru on 2023/03/06.
+// Created by folosuru on 2023/03/12.
 //
 #pragma once
-#include <future>
-#include "../api.hpp"
+#include "api.hpp"
 
-#include "nlohmann/json.hpp"
-
-class mastodon : public api {
+class pleroma : public api {
 public:
 
     enum class api_version {
@@ -31,7 +28,7 @@ public:
 
     std::string getServerVersion() override;
 
-    std::pair<nlohmann::json, mastodon::api_version> getInstance();
+    std::pair<nlohmann::json, pleroma::api_version> getInstance();
 
 private:
     static const utility::string_t API_V1_INSTANCE;
