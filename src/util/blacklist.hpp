@@ -18,7 +18,8 @@ namespace util {
                 "activitypub-troll.cf",
                 "misskey-forkbomb.cf",
                 "repl.co",
-                "gab.best"
+                "gab.best",
+                "ngrok.io"
         };
 
         bool isBlacklisted(std::string url);
