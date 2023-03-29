@@ -48,7 +48,14 @@ api * api::getInstance(const std::string& URL_) {
     if (software_name == "pleroma") return new pleroma(URL, nodeinfo, manifest);
     if (software_name == "akkoma") return new pleroma(URL, nodeinfo, manifest);
 
-
+    mastodon * instance;
+    try {
+        instance = new mastodon(URL, nodeinfo, manifest);
+        instance->getInstance();
+        return instance;
+    } catch (...) {
+        delete instance;
+    }
 
     return new api(URL, nodeinfo, manifest);
 }
