@@ -16,7 +16,6 @@ int main() {
         return 1;
     }
     auto redis = Redis("tcp://127.0.0.1:6379");
-
     /* first instance... */
     api * instance = api::getInstance("msky.z-n-a-k.net");
     auto list = instance->fetchAllFederation();
@@ -79,6 +78,7 @@ int main() {
                     auto list = i->fetchAllFederation();
                     util::sql::writeInstance(db, i);
                     redis.rename("misskey_tool:working:" + url, "misskey_tool:history:" + url);
+                    redis.set("misskey_tool:history:" + url , std::to_string(i->getFederationCount()));
                     if (!list) {
                         delete i;
                         continue;
