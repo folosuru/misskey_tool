@@ -27,7 +27,7 @@ int main() {
 
 
     std::vector<std::thread> thread_list;
-    for (int i = 0; i < 30; ++i) {
+    for (int i = 0; i < 10; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         thread_list.emplace_back(std::thread([] {
             std::cout << "start thread..." << std::endl;
