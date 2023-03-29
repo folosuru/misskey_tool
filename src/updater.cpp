@@ -1,15 +1,15 @@
 //
 // Created by folosuru on 2023/03/27.
 //
-#include "util/sql.hpp"
 #include <pqxx/pqxx>
 #include <sw/redis++/redis++.h>
+#include <iostream>
 using namespace sw::redis;
 
 int main() {
     auto redis = Redis("tcp://127.0.0.1:6379");
 
-    pqxx::connection connection = util::sql::createConnection();
+    pqxx::connection connection = pqxx::connection("user=misskey_tool password=test");
     pqxx::work tx(connection);
     for (auto [domain , federation_count] : tx.query<std::string, int>(
             "SELECT domain, federation_count FROM instance_list;"))
