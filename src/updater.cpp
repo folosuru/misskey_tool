@@ -12,8 +12,17 @@ int main() {
     for (auto [domain] : tx.query<std::string>(
             "SELECT domain FROM instance_list;"))
     {
-        util::sql::updateInstance(update_connection, api::getInstance(domain));
-        std::cout << "update :" << domain << std::endl;
+        api * instance;
+        try {
+            instance = api::getInstance(domain);
+        } catch (...) { continue; }
+        try {
+            util::sql::updateInstance(update_connection, instance);
+            std::cout << "update :" << domain << "\n";
+        } catch (...) {
+            delete instance;
+            continue;
+        }
     }
     return 0;
 }
