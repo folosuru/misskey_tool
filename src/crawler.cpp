@@ -68,12 +68,10 @@ int main() {
                     continue;
                 }
                 try {
-                    if (redis.exists("misskey_tool:history:" + url)) {
-                        if (redis.get("misskey_tool:history:" + url).value() ==
-                            std::to_string(i->getFederationCount())) {
-                            delete i;
-                            continue;
-                        }
+                    if (redis.get("misskey_tool:working:" + url).value() ==
+                        std::to_string(i->getFederationCount())) {
+                        delete i;
+                        continue;
                     }
                     auto list = i->fetchAllFederation();
                     util::sql::writeInstance(db, i);

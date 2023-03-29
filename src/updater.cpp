@@ -2,27 +2,22 @@
 // Created by folosuru on 2023/03/27.
 //
 #include "util/sql.hpp"
-#include "software_api/api.hpp"
 #include <pqxx/pqxx>
+#include <sw/redis++/redis++.h>
+using namespace sw::redis;
 
 int main() {
+    auto redis = Redis("tcp://127.0.0.1:6379");
+
     pqxx::connection connection = util::sql::createConnection();
-    pqxx::connection update_connection = util::sql::createConnection();
     pqxx::work tx(connection);
-    for (auto [domain] : tx.query<std::string>(
-            "SELECT domain FROM instance_list;"))
+    for (auto [domain , federation_count] : tx.query<std::string, int>(
+            "SELECT domain, federation_count FROM instance_list;"))
     {
-        api * instance;
         try {
-            instance = api::getInstance(domain);
+            redis.set("misskey_tool:queue:" + domain, std::to_string(federation_count));
+            std::cout << "queue set :" << domain << "\n";
         } catch (...) { continue; }
-        try {
-            util::sql::updateInstance(update_connection, instance);
-            std::cout << "update :" << domain << "\n";
-        } catch (...) {
-            delete instance;
-            continue;
-        }
     }
     return 0;
 }
