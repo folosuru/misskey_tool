@@ -10,7 +10,7 @@ int main() {
     pqxx::connection update_connection = util::sql::createConnection();
     pqxx::work tx(connection);
     for (auto [domain] : tx.query<std::string>(
-            "SELECT domain FROM instance_list limit 2"))
+            "SELECT domain FROM instance_list;"))
     {
         util::sql::updateInstance(update_connection, api::getInstance(domain));
         std::cout << "update :" << domain << std::endl;
