@@ -28,7 +28,18 @@ void util::sql::writeInstance(pqxx::connection& connection, api* api) {
               + work.quote(api->getName()) + " , "
               + work.quote(static_cast<int>(api->getRegisterStatus())) + " , "
               + work.quote(api->getBanner()) + " , "
-              + "null" + " );"
+              + "null" + " )"
+              + "ON CONFLICT ON CONSTRAINT instance_list_domain_key DO UPDATE SET"
+                "user_count = " + work.quote(api->getUserCount()) + " , "
+                "post_count = " + work.quote(api->getPostsCount()) + " , "
+                "software = " + work.quote(api->getServerSoftware()) + " , "
+                "federation_count = " + work.quote(api->getFederationCount()) + " , "
+                "description = " + work.quote(api->getDescription()) + " , "
+                "icon = " + work.quote(util::addScheme(api->getIcon() , api->getDomain())) + " , "
+                "server_version = " + work.quote(api->getServerVersion()) + " , "
+                "name = " + work.quote(api->getName()) + " , "
+                "register = " + work.quote(static_cast<int>(api->getRegisterStatus())) + " , "
+                "banner = " + work.quote(api->getBanner()) + ";"
             );
     work.commit();
 }
