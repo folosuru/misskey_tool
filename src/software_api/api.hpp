@@ -52,6 +52,8 @@ public:
 
     virtual std::string getServerVersion();
 
+    virtual std::string getBanner();
+
     // string for cpprestsdk...
     static const utility::string_t HTTPS_URI_SCHEME; // "https://"
     static const utility::string_t NODEINFO_PATH;   // "/.well-known/nodeinfo"

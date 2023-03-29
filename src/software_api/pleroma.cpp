@@ -81,3 +81,11 @@ std::string pleroma::getName() {
 std::string pleroma::getServerVersion() {
     return getInstance().first["version"].get<std::string>();
 }
+
+std::string pleroma::getBanner() {
+    if (getInstance().second == api_version::v2){
+        return getInstance().first["thumbnail"]["url"].get<std::string>();
+    } else {
+        return getInstance().first["thumbnail"].get<std::string>();
+    }
+}

@@ -131,3 +131,7 @@ std::string api::getName() {
 api::register_status api::getRegisterStatus() {
     return api::unknown;
 }
+
+std::string api::getBanner() {
+    return "";
+}

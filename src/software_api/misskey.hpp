@@ -29,6 +29,7 @@ public:
 
     std::string getIcon() override;
 
+    std::string getBanner() override;
 
     std::string getName() override;
 

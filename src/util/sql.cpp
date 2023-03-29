@@ -15,7 +15,7 @@ bool util::sql::isExistByDomain(pqxx::connection& connection , const std::string
 void util::sql::writeInstance(pqxx::connection& connection, api* api) {
     pqxx::work work(connection);
     work.exec("insert into instance_list "
-              "(domain, user_count, post_count, software, federation_count, description, icon, server_version, name, register, language) "
+              "(domain, user_count, post_count, software, federation_count, description, icon, server_version, name, register, banner, language) "
               "VALUES("
               + work.quote(api->getDomain()) + ","
               + work.quote(api->getUserCount()) + " , "
@@ -27,6 +27,7 @@ void util::sql::writeInstance(pqxx::connection& connection, api* api) {
               + work.quote(api->getServerVersion()) + " , "
               + work.quote(api->getName()) + " , "
               + work.quote(static_cast<int>(api->getRegisterStatus())) + " , "
+              + work.quote(api->getBanner()) + " , "
               + "null" + " );"
             );
     work.commit();
@@ -46,6 +47,7 @@ void util::sql::initDB() {
             " server_version text,"
             " name text,"
             " register text,"
+            " banner text,"
             " language text,"
             " UNIQUE(domain));");
     tx.commit();
@@ -67,7 +69,8 @@ void util::sql::updateInstance(pqxx::connection &connection, api *api) {
               "icon = " + work.quote(util::addScheme(api->getIcon() , api->getDomain())) + " , "
               "server_version = " + work.quote(api->getServerVersion()) + " , "
               "name = " + work.quote(api->getName()) + " , "
-              "register = " + work.quote(static_cast<int>(api->getRegisterStatus())) +
+              "register = " + work.quote(static_cast<int>(api->getRegisterStatus())) + " , "
+              "banner = " + work.quote(api->getBanner()) +
               "where domain = " + work.quote(api->getDomain()) + ";"
     );
     work.commit();

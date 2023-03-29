@@ -140,3 +140,11 @@ std::string misskey::getName() {
     return getMeta()["name"].get<std::string>();
 }
 
+std::string misskey::getBanner() {
+    if (!getMeta()["bannerUrl"].is_null()){
+        return  getMeta()["bannerUrl"].get<std::string>();
+    } else {
+        return "";
+    }
+}
+
