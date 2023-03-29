@@ -16,14 +16,6 @@ namespace util::sql {
 
     pqxx::connection createConnection();
 
-    void writeInstance(pqxx::connection &connection,
-                       std::string &domain,
-                       int user_count,
-                       int post_count,
-                       std::string software,
-                       std::string data,
-                       int federation_count);
-
     void writeInstance(pqxx::connection &connection, api* api);
 
     void updateInstance(pqxx::connection &connection, api* api);
