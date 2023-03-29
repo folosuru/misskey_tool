@@ -46,7 +46,7 @@ api * api::getInstance(const std::string& URL_) {
     if (software_name == "hometown") return new mastodon(URL, nodeinfo, manifest);
 
     if (software_name == "pleroma") return new pleroma(URL, nodeinfo, manifest);
-
+    if (software_name == "akkoma") return new pleroma(URL, nodeinfo, manifest);
 
 
 
