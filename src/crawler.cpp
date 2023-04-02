@@ -46,18 +46,22 @@ int main() {
             while (true) {
 
                 std::unordered_set<std::string> keys;
-                auto cursor = 0LL;
-                while (true) {
-                    cursor = redis.scan(cursor, "misskey_tool:queue*", 1, std::inserter(keys, keys.begin()));
-                    if (keys.empty()) {
-                        if (cursor == 0) {
-                            std::cout << "empty" << std::endl;
-                            return;
+                try {
+                    auto cursor = 0LL;
+                    while (true) {
+                        cursor = redis.scan(cursor, "misskey_tool:queue*", 1, std::inserter(keys, keys.begin()));
+                        if (keys.empty()) {
+                            if (cursor == 0) {
+                                std::cout << "empty" << std::endl;
+                                return;
+                            }
+                            continue;
+                        } else {
+                            break;
                         }
-                        continue;
-                    } else {
-                        break;
                     }
+                } catch (std::exception& exception){
+                    std::cout << "Error in get key:" + exception.what() << std::endl;
                 }
                 std::string url = *keys.begin();
                 url.erase(0, 19);
