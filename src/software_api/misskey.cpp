@@ -43,7 +43,7 @@ std::optional<api::instance_list> misskey::fetchAllFederation() {
                 }
                 return std::nullopt;
             }
-            list.insert(list.end(), data.value().begin(), data.value().end());
+            list.merge(data.value());
         }
         for (auto &t: thread_list) {
             t.join();
@@ -66,7 +66,7 @@ int misskey::getFederationCount() {
 
 std::optional<api::instance_list> misskey::fetchFederation(const utility::string_t &URL, int offset) {
     try {
-        std::vector<std::string> list;
+        instance_list list;
         web::http::client::http_client client(URL + INSTANCES_PATH);
         web::json::value json;
         json[LIMIT] = instance_get_limit;
@@ -81,7 +81,7 @@ std::optional<api::instance_list> misskey::fetchFederation(const utility::string
         nlohmann::json instances = nlohmann::json::parse(data);
         for (auto item: instances) {
             if (item["host"].is_string()) {
-                list.push_back(item["host"].get<std::string>());
+                list.insert(item["host"].get<std::string>());
             }
         }
         return list;

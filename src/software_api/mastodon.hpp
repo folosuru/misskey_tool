@@ -23,7 +23,7 @@ public:
 
     int getFederationCount() override;
 
-    std::optional<std::vector<std::string>> getPeers();
+    std::optional<instance_list> getPeers();
 
     std::string getIcon() override;
 

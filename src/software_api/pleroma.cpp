@@ -42,7 +42,7 @@ std::optional<api::instance_list> pleroma::getPeers() {
     }
     peers.value() = instance_list();
     for (auto& i : json){
-        peers.value()->push_back(i.get<std::string>());
+        peers.value().value().insert(i.get<std::string>());
     }
     return peers.value();
 }
