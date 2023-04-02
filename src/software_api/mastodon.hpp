@@ -23,7 +23,7 @@ public:
 
     int getFederationCount() override;
 
-    std::vector<std::string> getPeers();
+    std::optional<std::vector<std::string>> getPeers();
 
     std::string getIcon() override;
 
@@ -39,6 +39,6 @@ private:
     static const utility::string_t API_V1_INSTANCE;
     static const utility::string_t API_V2_INSTANCE;
     static const utility::string_t API_PEERS;
-    std::optional<instance_list> peers;
+    std::optional<std::optional<instance_list>> peers;
     std::optional<std::pair<nlohmann::json , api_version>> instance;
 };
