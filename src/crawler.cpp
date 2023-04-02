@@ -91,6 +91,7 @@ int main() {
                 try {
                     if (redis.get("misskey_tool:working:" + url).value() ==
                         std::to_string(i->getFederationCount()) && i->getFederationCount() != 0 ) {
+                        redis.rename("misskey_tool:working:" + url, "misskey_tool:history:" + url);
                         delete i;
                         continue;
                     }
