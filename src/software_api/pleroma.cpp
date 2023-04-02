@@ -30,8 +30,9 @@ std::optional<api::instance_list> pleroma::getPeers() {
         return peers.value();
     }
     peers = std::optional<api::instance_list>();
+    nlohmann::json json;
     try {
-        nlohmann::json json = nlohmann::json::parse(
+        json = nlohmann::json::parse(
                 web::http::client::http_client(getURL() + API_PEERS)
                         .request(web::http::methods::GET).get().extract_utf8string().get()
         );
