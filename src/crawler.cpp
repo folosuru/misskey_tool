@@ -90,7 +90,7 @@ int main() {
                 }
                 try {
                     if (redis.get("misskey_tool:working:" + url).value() ==
-                        std::to_string(i->getFederationCount())) {
+                        std::to_string(i->getFederationCount()) && i->getFederationCount() != 0 ) {
                         delete i;
                         continue;
                     }
