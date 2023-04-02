@@ -70,7 +70,7 @@ void util::sql::initDB() {
 }
 
 pqxx::connection util::sql::createConnection() {
-    return pqxx::connection("user=misskey_tool password=test");
+    return pqxx::connection("user=misskey_tool password=test dbname=misskey_tool");
 }
 
 void util::sql::updateInstance(pqxx::connection &connection, api *api) {
