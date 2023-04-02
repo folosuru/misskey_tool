@@ -60,8 +60,12 @@ void util::sql::initDB() {
             " register text,"
             " banner text,"
             " language text,"
-            " UNIQUE(domain));");
+            " UNIQUE(domain));"
+            "create table IF NOT EXISTS blacklist (domain text, UNIQUE(domain));"
+
+            );
     tx.commit();
+
     c.close();
 }
 
@@ -85,4 +89,16 @@ void util::sql::updateInstance(pqxx::connection &connection, api *api) {
               "where domain = " + work.quote(api->getDomain()) + ";"
     );
     work.commit();
+}
+
+void util::sql::addBlacklist(pqxx::connection &connection, const std::string& domain) {
+    pqxx::work work(connection);
+    work.exec("insert into blacklist values(" + work.quote(domain) + ") ON CONFLICT DO NOTHING;");
+    work.commit();
+}
+
+bool util::sql::isExistInBlacklist(pqxx::connection &connection, const std::string& domain) {
+    pqxx::work work(connection);
+    auto result = work.query1<bool>("SELECT EXISTS (select * from blacklist where domain ="+ work.quote(domain) +")");
+    return std::get<0>(result);
 }

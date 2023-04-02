@@ -5,7 +5,9 @@
 #pragma once
 
 #include <string>
-#include <vector>
+#include <unordered_set>
+#include "sql.hpp"
+#include "util.hpp"
 
 namespace util {
     namespace blacklist {
@@ -14,15 +16,21 @@ namespace util {
         /*
          * black list domain
          */
-        const std::vector<std::string> blacklisted = {
+        const std::unordered_set<std::string> blacklisted_domain = {
                 "activitypub-troll.cf",
                 "misskey-forkbomb.cf",
                 "repl.co",
                 "gab.best",
-                "ngrok.io"
+                "ngrok.io",
+                ".local"
         };
 
-        bool isBlacklisted(std::string url);
+        const std::unordered_set<std::string> blacklisted_ip = {
+                "10.",
+                "192.168.",
+        };
+
+        bool isBlacklisted(pqxx::connection &connection,const std::string& url);
 
     }
 }

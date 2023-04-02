@@ -3,6 +3,7 @@
 #include <pqxx/pqxx>
 #include <sw/redis++/redis++.h>
 #include <thread>
+#include "util/util.hpp"
 #include "util/sql.hpp"
 #include "util/blacklist.hpp"
 
@@ -16,12 +17,21 @@ int main() {
         return 1;
     }
     auto redis = Redis("tcp://127.0.0.1:6379");
-    /* first instance... */
-    api * instance = api::getInstance("msky.z-n-a-k.net");
-    auto list = instance->fetchAllFederation();
-    if (list) {
-        for (const auto &item: list.value()) {
-            redis.set("misskey_tool:queue:" + item, "");
+
+    /* first instance...
+     *
+     * you can change url to another instance.
+     */
+    std::unordered_set<std::string> keys;
+    auto cursor = 0LL;
+    cursor = redis.scan(cursor, "misskey_tool:queue*", 1, std::inserter(keys, keys.begin()));
+    if (cursor == 0) {
+        api * instance = api::getInstance("msky.z-n-a-k.net");
+        auto list = instance->fetchAllFederation();
+        if (list) {
+            for (const auto &item: list.value()) {
+                redis.set("misskey_tool:queue:" + item, "");
+            }
         }
     }
 
@@ -56,6 +66,11 @@ int main() {
                 } catch (sw::redis::ReplyError &e) {
                     continue;
                 }
+                if (util::blacklist::isBlacklisted(db, url)){
+                    redis.del("misskey_tool:working:" + url);
+                    std::cout << "skip: blacklist:" + url << std::endl;
+                    continue;
+                }
                 std::cout << "get: " + url << std::endl;
                 api* i;
                 try {
@@ -64,6 +79,12 @@ int main() {
                     std::cout << "Error: Cannot access resource: " + url << std::endl;
                     try {
                         redis.rename("misskey_tool:working:" + url, "misskey_tool:fail:" + url);
+                        std::string topleveldomain = util::getTopLevelDomain(url);
+                        long long fail_score = redis.incr("misskey_tool:fail_domain:"+topleveldomain);
+                        if (fail_score > 10){
+                            util::sql::addBlacklist(db,topleveldomain);
+                            std::cout << "add blacklist:" + topleveldomain <<std::endl;
+                        }
                     } catch (sw::redis::ReplyError &e) {}
                     continue;
                 }
@@ -85,7 +106,7 @@ int main() {
                         if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
                             continue;
                         } else {
-                            if (util::blacklist::isBlacklisted(i1)) {
+                            if (util::blacklist::isBlacklisted(db,i1)) {
                                 continue;
                             }
                             redis.set("misskey_tool:queue:" + i1, "0");

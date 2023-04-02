@@ -14,3 +14,16 @@ std::string util::addScheme(const std::string& path , const std::string& domain)
         }
     }
 }
+
+std::string util::getTopLevelDomain(const std::string &domain) {
+    std::vector<std::string> v;
+    std::stringstream ss(domain);
+    std::string buffer;
+    while( std::getline(ss, buffer, '.') ) {
+        v.push_back(buffer);
+    }
+    if (v.size() == 2){
+        return domain;
+    }
+    return v[v.size()-2]+'.'+v[v.size()-1];
+}

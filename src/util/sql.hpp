@@ -16,6 +16,10 @@ namespace util::sql {
 
     pqxx::connection createConnection();
 
+    bool isExistInBlacklist(pqxx::connection &connection,const std::string& domain);
+
+    void addBlacklist(pqxx::connection &connection, const std::string& domain);
+
     void writeInstance(pqxx::connection &connection, api* api);
 
     void updateInstance(pqxx::connection &connection, api* api);
