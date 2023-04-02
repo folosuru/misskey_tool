@@ -62,6 +62,7 @@ int main() {
                     }
                 } catch (std::exception& exception){
                     std::cout << "Error in get key: " << exception.what() << std::endl;
+                    continue;
                 }
                 std::string url = *keys.begin();
                 url.erase(0, 19);
