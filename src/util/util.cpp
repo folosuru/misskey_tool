@@ -22,7 +22,7 @@ std::string util::getTopLevelDomain(const std::string &domain) {
     while( std::getline(ss, buffer, '.') ) {
         v.push_back(buffer);
     }
-    if (v.size() == 2){
+    if (v.size() <= 2){
         return domain;
     }
     return v[v.size()-2]+'.'+v[v.size()-1];
