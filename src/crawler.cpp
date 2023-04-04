@@ -45,7 +45,7 @@ int main() {
             auto redis = Redis("tcp://127.0.0.1:6379");
             while (true) {
 
-                std::unordered_set<std::string> keys;
+                std::unordered_set<std::string> keys = {};
                 try {
                     auto cursor = 0LL;
                     while (true) {
