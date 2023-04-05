@@ -45,7 +45,8 @@ int main() {
             auto redis = Redis("tcp://127.0.0.1:6379");
             while (true) {
 
-                std::unordered_set<std::string> keys = {};
+                std::unordered_set<std::string> keys;
+                keys.clear();
                 try {
                     auto cursor = 0LL;
                     while (true) {
@@ -100,7 +101,7 @@ int main() {
                         delete i;
                         continue;
                     }
-                    auto list = i->fetchAllFederation();
+                    std::optional<api::instance_list> list = i->fetchAllFederation();
                     util::sql::writeInstance(db, i);
                     std::cout << "wrote: " + url << std::endl;
                     redis.rename("misskey_tool:working:" + url, "misskey_tool:history:" + url);
@@ -119,6 +120,7 @@ int main() {
                             redis.set("misskey_tool:queue:" + i1, "0");
                         }
                     }
+                    list.value().clear();
                     std::cout << "complete: " + url << std::endl;
                 } catch (sw::redis::Error &e) {
                     std::cerr << "Error: redis: " << e.what() << std::endl;
