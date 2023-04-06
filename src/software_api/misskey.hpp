@@ -11,6 +11,9 @@
 class misskey : public api {
 
 public:
+
+    ~misskey() = default;
+
     static const int instance_get_limit ;
 
     static const int access_thread_limit;

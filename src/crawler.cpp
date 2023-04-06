@@ -33,6 +33,7 @@ int main() {
                 redis.set("misskey_tool:queue:" + item, "");
             }
         }
+        delete instance;
     }
 
 
@@ -138,6 +139,7 @@ int main() {
                 }
                 delete i;
             }
+            db.close();
         }));
 
     }

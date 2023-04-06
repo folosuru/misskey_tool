@@ -10,6 +10,8 @@
 class mastodon : public api {
 public:
 
+    ~mastodon() = default;
+
     enum class api_version {
         v1,
         v2

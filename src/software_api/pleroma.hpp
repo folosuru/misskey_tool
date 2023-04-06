@@ -7,6 +7,8 @@
 class pleroma : public api {
 public:
 
+    ~pleroma() = default;
+
     enum class api_version {
         v1,
         v2

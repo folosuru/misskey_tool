@@ -13,6 +13,8 @@ class api {
 
 public:
 
+    virtual ~api() = default;
+
     static api * getInstance(const std::string& URL);
 
     typedef std::unordered_set<std::string> instance_list;
