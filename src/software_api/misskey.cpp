@@ -130,6 +130,9 @@ nlohmann::json misskey::getMeta() {
 
 std::string misskey::getIcon() {
     if (!getMeta()["iconUrl"].is_null()) {
+        if (getMeta()["iconUrl"].get<std::string>().empty()){
+            return "/favicon.ico";
+        }
         return getMeta()["iconUrl"].get<std::string>();
     } else {
         return "/favicon.ico";
