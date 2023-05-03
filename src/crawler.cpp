@@ -88,7 +88,7 @@ int main() {
                         redis.rename("misskey_tool:working:" + url, "misskey_tool:fail:" + url);
                         std::string topleveldomain = util::getTopLevelDomain(url);
                         long long fail_score = redis.incr("misskey_tool:fail_domain:"+topleveldomain);
-                        if (fail_score > 10){
+                        if (fail_score > 50){
                             util::sql::addBlacklist(db,topleveldomain);
                             std::cout << "add blacklist:" + topleveldomain <<std::endl;
                         }
@@ -112,7 +112,7 @@ int main() {
                         continue;
                     }
                     for (const auto &i1: list.value()) {
-                        if (redis.exists("misskey_tool:*" + i1) || util::sql::isExistByDomain(db, i1)) {
+                        if (redis.exists("misskey_tool:*" + i1)) {
                             continue;
                         } else {
                             if (util::blacklist::isBlacklisted(db,i1)) {
