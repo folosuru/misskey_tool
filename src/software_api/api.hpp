@@ -4,7 +4,7 @@
 #pragma once
 
 #include <optional>
-#include <unordered_set>
+#include <vector>
 
 #include <cpprest/http_client.h>
 #include <nlohmann/json.hpp>
@@ -17,7 +17,7 @@ public:
 
     static api * getInstance(const std::string& URL);
 
-    typedef std::unordered_set<std::string> instance_list;
+    typedef std::vector<std::string> instance_list;
 
     enum register_status {
         everyone,

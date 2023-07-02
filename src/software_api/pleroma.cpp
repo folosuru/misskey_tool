@@ -29,7 +29,7 @@ std::optional<api::instance_list> pleroma::getPeers() {
     if (peers){
         return peers.value();
     }
-    peers = std::optional<api::instance_list>();
+    peers = api::instance_list();
     nlohmann::json json;
     try {
         json = nlohmann::json::parse(
@@ -37,12 +37,11 @@ std::optional<api::instance_list> pleroma::getPeers() {
                         .request(web::http::methods::GET).get().extract_utf8string().get()
         );
     } catch (...){
-        peers.value() = std::nullopt;
-        return peers.value();
+        return std::nullopt;
     }
     peers.value() = instance_list();
     for (auto& i : json){
-        peers.value().value().insert(i.get<std::string>());
+        peers.value()->push_back(i.get<std::string>());
     }
     return peers.value();
 }

@@ -13,6 +13,7 @@ std::optional<api::instance_list> misskey::fetchAllFederation() {
     int i = 0;
     int offset = 0;
     instance_list list;
+    list.reserve(instance_count);
     while (instance_count >= i * access_thread_limit * instance_get_limit) {
         std::vector<std::future<std::optional<instance_list>>> future_list;
         std::vector<std::thread> thread_list;
@@ -43,7 +44,7 @@ std::optional<api::instance_list> misskey::fetchAllFederation() {
                 }
                 return std::nullopt;
             }
-            list.merge(data.value());
+            list.insert(list.end(),data.value().begin(),data.value().end());
         }
         for (auto &t: thread_list) {
             t.join();
@@ -81,7 +82,7 @@ std::optional<api::instance_list> misskey::fetchFederation(const utility::string
         nlohmann::json instances = nlohmann::json::parse(data);
         for (auto item: instances) {
             if (item["host"].is_string()) {
-                list.insert(item["host"].get<std::string>());
+                list.push_back(item["host"].get<std::string>());
             }
         }
         return list;
