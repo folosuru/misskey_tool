@@ -5,14 +5,15 @@
 
 #include <string>
 #include <pqxx/pqxx>
+#include <memory>
 #include "../software_api/api.hpp"
 
-
+class api;
 namespace util::sql {
 
     bool isExistByDomain(pqxx::connection &connection, const std::string &domain);
 
-    void initDB();
+    void initDB(pqxx::connection& c);
 
     pqxx::connection createConnection();
 
@@ -20,7 +21,7 @@ namespace util::sql {
 
     void addBlacklist(pqxx::connection &connection, const std::string& domain);
 
-    void writeInstance(pqxx::connection &connection, api* api);
+    void writeInstance(pqxx::connection &connection, std::shared_ptr<api> api);
 
     void updateInstance(pqxx::connection &connection, api* api);
 }

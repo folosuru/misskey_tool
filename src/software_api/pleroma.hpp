@@ -20,6 +20,8 @@ public:
 
     std::optional<instance_list> fetchAllFederation() override;
 
+    void fetchFederationToQueue() override;
+
     int getFederationCount() override;
 
     std::optional<api::instance_list> getPeers();

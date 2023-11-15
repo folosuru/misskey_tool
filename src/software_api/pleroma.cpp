@@ -98,3 +98,15 @@ std::string pleroma::getBanner() {
         return getInstance().first["thumbnail"].get<std::string>();
     }
 }
+
+void pleroma::fetchFederationToQueue() {
+    std::optional<instance_list> list = fetchAllFederation();
+    if (list) {
+        for (const auto& federation_instance : list.value()) {
+            if (!blacklist_->isBlacklisted(federation_instance)) {
+                domain.addQueue(federation_instance);
+                //std::cout << "get:" << federation_instance << std::endl;
+            }
+        }
+    }
+}

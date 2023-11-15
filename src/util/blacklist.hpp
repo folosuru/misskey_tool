@@ -6,15 +6,22 @@
 
 #include <string>
 #include <unordered_set>
+#include <cstdint>
+#include <shared_mutex>
 #include "sql.hpp"
 #include "util.hpp"
 
 namespace util {
 class blacklist {
 public:
-    blacklist(pqxx::connection &connection);
+    explicit blacklist(pqxx::connection& connection);
 
-    bool isBlacklisted(const std::string& url);
+    blacklist() = default;
+
+    [[nodiscard]]
+    bool isBlacklisted(const std::string& url) const noexcept;
+
+    bool addBlacklistCandidate(const std::string& url);
 private:
     /*
      * black list domain
@@ -34,5 +41,8 @@ private:
     };
 
     std::unordered_set<std::string> blacklisted;
-    }
+    std::unordered_map<std::string, std::int_fast8_t> blacklist_candidate_score;
+    static constexpr std::int_fast8_t blacklist_threshold = 10;
+    mutable std::shared_mutex mutex;
+};
 }

@@ -12,7 +12,7 @@ bool util::sql::isExistByDomain(pqxx::connection& connection , const std::string
 }
 
 
-void util::sql::writeInstance(pqxx::connection& connection, api* api) {
+void util::sql::writeInstance(pqxx::connection& connection, std::shared_ptr<api> api) {
     pqxx::work work(connection);
     work.exec("insert into instance_list "
               "(domain, user_count, post_count, software, federation_count, description, icon, server_version, name, register, banner, language) "
@@ -44,8 +44,7 @@ void util::sql::writeInstance(pqxx::connection& connection, api* api) {
     work.commit();
 }
 
-void util::sql::initDB() {
-    pqxx::connection c = createConnection();
+void util::sql::initDB(pqxx::connection& c) {
     pqxx::work tx(c);
     tx.exec("create table IF NOT EXISTS instance_list ("
             " domain text ,"
@@ -65,8 +64,6 @@ void util::sql::initDB() {
 
             );
     tx.commit();
-
-    c.close();
 }
 
 pqxx::connection util::sql::createConnection() {

@@ -4,14 +4,16 @@
 
 #include "api.hpp"
 
+#include <memory>
 #include <utility>
 
 #include "misskey.hpp"
 #include "mastodon.hpp"
 #include "pleroma.hpp"
 
-api * api::getInstance(const std::string& URL_) {
-    utility::string_t URL = utility::conversions::to_string_t(URL_);
+std::shared_ptr<api> api::getInstance(const target_domain& target,
+                                      const std::shared_ptr<util::blacklist>& blackList) {
+    utility::string_t URL = utility::conversions::to_string_t(target.domain);
     web::http::client::http_client_config conf;
     auto nodeinfo_url = nlohmann::json::parse(web::http::client::http_client(HTTPS_URI_SCHEME + URL + NODEINFO_PATH , conf)
             .request(web::http::methods::GET).get().extract_utf8string().get())
@@ -35,28 +37,31 @@ api * api::getInstance(const std::string& URL_) {
             ? nodeinfo["software"]["name"].get<std::string>()
             : "" ;
 
-    if (software_name == "misskey") return new misskey(URL, nodeinfo, manifest);
-    if (software_name == "foundkey") return new misskey(URL, nodeinfo, manifest);
-    if (software_name == "meisskey") return new misskey(URL, nodeinfo, manifest);
-    if (software_name == "calckey") return new misskey(URL, nodeinfo, manifest);
+    if (software_name == "misskey") return std::shared_ptr<api>(new misskey(target, blackList, nodeinfo, manifest));
+    if (software_name == "foundkey") return std::shared_ptr<api>(new misskey(target, blackList, nodeinfo, manifest));
+    if (software_name == "meisskey") return std::shared_ptr<api>(new misskey(target, blackList, nodeinfo, manifest));
+    if (software_name == "calckey") return std::shared_ptr<api>(new misskey(target, blackList, nodeinfo, manifest));
 
-    if (software_name == "mastodon") return new mastodon(URL, nodeinfo, manifest);
-    if (software_name == "ecko") return new mastodon(URL, nodeinfo, manifest);
-    if (software_name == "Fedibird") return new mastodon(URL, nodeinfo, manifest);
-    if (software_name == "hometown") return new mastodon(URL, nodeinfo, manifest);
+    if (software_name == "mastodon") return std::shared_ptr<api>(new mastodon(target, blackList, nodeinfo, manifest));
+    if (software_name == "ecko") return std::shared_ptr<api>(new mastodon(target, blackList, nodeinfo, manifest));
+    if (software_name == "Fedibird") return std::shared_ptr<api>(new mastodon(target, blackList, nodeinfo, manifest));
+    if (software_name == "hometown") return std::shared_ptr<api>(new mastodon(target, blackList, nodeinfo, manifest));
 
-    if (software_name == "pleroma") return new pleroma(URL, nodeinfo, manifest);
-    if (software_name == "akkoma") return new pleroma(URL, nodeinfo, manifest);
+    if (software_name == "pleroma") return std::shared_ptr<api>(new pleroma(target, blackList, nodeinfo, manifest));
+    if (software_name == "akkoma") return std::shared_ptr<api>(new pleroma(target, blackList, nodeinfo, manifest));
 
-    auto * instance = new mastodon(URL, nodeinfo, manifest);
     try {
-        instance->getInstance();
+        std::shared_ptr<mastodon> instance(new mastodon(target, blackList, nodeinfo, manifest));
+        instance->getInstanceData();
+        return instance;
+    } catch (...) {}
+    try {
+        std::shared_ptr<misskey> instance(new misskey(target, blackList, nodeinfo, manifest));
+        instance->getMeta();
         return instance;
     } catch (...) {
-        delete instance;
+        return std::make_shared<api>(target, blackList, nodeinfo, manifest);
     }
-
-    return new api(URL, nodeinfo, manifest);
 }
 
 
@@ -64,8 +69,12 @@ utility::string_t api::getURL() {
     return HTTPS_URI_SCHEME + URL;
 }
 
-api::api(const utility::string_t& URL, nlohmann::json nodeinfo , nlohmann::json manifest) {
-    this->URL = URL;
+api::api(target_domain domain_,
+         std::shared_ptr<util::blacklist> blackList,
+         nlohmann::json nodeinfo,
+         nlohmann::json manifest) : domain(std::move(domain_)) {
+    this->blacklist_ = std::move(blackList);
+    this->URL = utility::conversions::to_string_t(domain.domain);
     this->nodeinfo = std::move(nodeinfo);
     this->manifest = std::move(manifest);
 }
@@ -124,7 +133,7 @@ const utility::string_t api::LINKS = utility::conversions::to_string_t("links");
 const utility::string_t api::HREF = utility::conversions::to_string_t("href");
 
 std::string api::getName() {
-    return manifest["name"].get<std::string>();;
+    return manifest["name"].get<std::string>();
 }
 
 api::register_status api::getRegisterStatus() {
@@ -134,3 +143,5 @@ api::register_status api::getRegisterStatus() {
 std::string api::getBanner() {
     return "";
 }
+
+void api::fetchFederationToQueue() {}

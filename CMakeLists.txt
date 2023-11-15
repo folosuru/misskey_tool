@@ -13,6 +13,8 @@ file(GLOB_RECURSE api
         ${PROJECT_SOURCE_DIR}/src/software_api/*.hpp
         )
 file(GLOB_RECURSE util
+        ${PROJECT_SOURCE_DIR}/src/queue/*.cpp
+        ${PROJECT_SOURCE_DIR}/src/queue/*.hpp
         ${PROJECT_SOURCE_DIR}/src/util/*.cpp
         ${PROJECT_SOURCE_DIR}/src/util/*.hpp
         )
@@ -22,7 +24,7 @@ target_link_libraries(misskey_tool cpprestsdk::cpprest)
 target_link_libraries(misskey_tool libpqxx::pqxx)
 target_link_libraries(misskey_tool nlohmann_json::nlohmann_json)
 
-add_executable(updater src/updater.cpp)
+add_executable(updater src/updater.cpp ${api} ${util})
 target_link_libraries(updater nlohmann_json::nlohmann_json)
 target_link_libraries(updater cpprestsdk::cpprest)
 target_link_libraries(updater libpqxx::pqxx)

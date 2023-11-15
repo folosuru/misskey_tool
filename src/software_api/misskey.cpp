@@ -4,54 +4,10 @@
 #include "misskey.hpp"
 
 const int misskey::instance_get_limit = 100;
-const int misskey::access_thread_limit = 10;
-const int misskey::connect_timeout = 20;
+
 
 std::optional<api::instance_list> misskey::fetchAllFederation() {
-    // get federation from /api/stats .
-    int instance_count = getFederationCount();
-    int i = 0;
-    int offset = 0;
-    instance_list list;
-    list.reserve(instance_count);
-    while (instance_count >= i * access_thread_limit * instance_get_limit) {
-        std::vector<std::future<std::optional<instance_list>>> future_list;
-        std::vector<std::thread> thread_list;
-        for (int j = 0;
-             j < access_thread_limit & (j + i * access_thread_limit) * instance_get_limit < instance_count; ++j) {
-            offset = (j + i * access_thread_limit) * instance_get_limit;
-            std::promise<std::optional<instance_list>> promise;
-            future_list.push_back(promise.get_future());
-            thread_list.emplace_back([offset](const utility::string_t& URL , std::promise<std::optional<instance_list>> promise) {
-                promise.set_value(fetchFederation(URL, offset));
-            }, getURL() , std::move(promise));
-        }
-
-        std::chrono::time_point start_waiting = std::chrono::steady_clock::now();
-
-        for (auto &future: future_list) {
-            if (future.wait_until(start_waiting + std::chrono::seconds(connect_timeout)) != std::future_status::ready) {
-                ucout << LOG_TIMEOUT << this->getURL() << std::endl;
-                for (auto &t: thread_list) {
-                    t.detach();
-                }
-                return std::nullopt;
-            }
-            std::optional<instance_list> data = future.get();
-            if (!data) {
-                for (auto &t: thread_list) {
-                    t.detach();
-                }
-                return std::nullopt;
-            }
-            list.insert(list.end(),data.value().begin(),data.value().end());
-        }
-        for (auto &t: thread_list) {
-            t.join();
-        }
-        ++i;
-    }
-    return list;
+    return std::nullopt;
 }
 
 int misskey::getFederationCount() {
@@ -149,6 +105,21 @@ std::string misskey::getBanner() {
         return  getMeta()["bannerUrl"].get<std::string>();
     } else {
         return "";
+    }
+}
+
+void misskey::fetchFederationToQueue() {
+    for (int i = 0; i < (getFederationCount() / instance_get_limit) + 1; ++i) {
+        std::optional<instance_list> list = fetchFederation(getURL(), i*instance_get_limit);
+        if (list) {
+            for (const auto& federation_instance : list.value()) {
+                if (!blacklist_->isBlacklisted(federation_instance)) {
+                    domain.addQueue(federation_instance);
+                    std::cout << "get:" << federation_instance << std::endl;
+                }
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(5));
     }
 }
 

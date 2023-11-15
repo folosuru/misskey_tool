@@ -8,15 +8,20 @@
 
 #include <cpprest/http_client.h>
 #include <nlohmann/json.hpp>
-
+#include "../queue/work_queue.hpp"
+#include <memory>
+#include "../util/blacklist.hpp"
+namespace util {
+class blacklist;
+}
 class api {
 
 public:
 
     virtual ~api() = default;
 
-    static api * getInstance(const std::string& URL);
-    static api * getInstance(target_domain);
+    static std::shared_ptr<api> getInstance(const target_domain&,
+                                            const std::shared_ptr<util::blacklist>& blacklist);
 
     typedef std::vector<std::string> instance_list;
 
@@ -29,11 +34,14 @@ public:
     };
 
     api() = delete;
-    api(const utility::string_t& URL , nlohmann::json nodeinfo , nlohmann::json manifest);
+    api(target_domain domain,
+        std::shared_ptr<util::blacklist>,
+        nlohmann::json nodeinfo,
+        nlohmann::json manifest);
 
     virtual std::optional<instance_list> fetchAllFederation();
 
-    virtual void fetchAllFederation();
+    virtual void fetchFederationToQueue();
 
     virtual int getFederationCount();
 
@@ -48,7 +56,6 @@ public:
     virtual api::register_status getRegisterStatus();
 
     std::string getServerSoftware();
-
 
     virtual int getUserCount();
 
@@ -69,13 +76,14 @@ public:
 
 
 protected:
+    target_domain domain;
 
     utility::string_t URL;
 
     nlohmann::json nodeinfo;
 
     nlohmann::json manifest;
-
     std::optional<int> FederationCount = std::nullopt;
 
+    std::shared_ptr<util::blacklist> blacklist_;
 };

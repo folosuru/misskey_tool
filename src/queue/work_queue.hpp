@@ -1,23 +1,36 @@
+#ifndef MISSKEY_TOOL_SRC_QUEUE_WORK_QUEUE_HPP
+#define MISSKEY_TOOL_SRC_QUEUE_WORK_QUEUE_HPP
 #include <queue>
+#include <string>
+#include <unordered_set>
+#include <utility>
+#include <shared_mutex>
+#include <optional>
+class work_queue;
 class target_domain {
 public:
-    const std::string domain;
+    std::string domain;
 
-    void addQueue(std::string);
+    void addQueue(const std::string&);
 
-    void resolve();
+    target_domain(std::string  domain, work_queue& queue);
+
 private:
-    std::unordered_set<std::string>& resolved_ref;
     work_queue& queue;
 };
 
 
 class work_queue {
 public:
-    void add(std::string);
+    void add(const std::string&);
 
-    target_domain get();
+    bool isNotFound(const std::string&);
+
+    std::optional<target_domain> get();
 private:
     std::queue<std::string> queue;
-    std::unordered_set<std::string> resolved;
+    std::unordered_set<std::string> found_domain;
+    std::shared_mutex found_mutex;
+    std::shared_mutex queue_mutex;
 };
+#endif  // MISSKEY_TOOL_SRC_QUEUE_WORK_QUEUE_HPP

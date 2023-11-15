@@ -23,6 +23,8 @@ public:
 
     std::optional<instance_list> fetchAllFederation() override;
 
+    void fetchFederationToQueue() override;
+
     int getFederationCount() override;
 
     std::optional<instance_list> getPeers();
@@ -35,7 +37,7 @@ public:
 
     std::string getServerVersion() override;
 
-    std::pair<nlohmann::json, mastodon::api_version> getInstance();
+    std::pair<nlohmann::json, mastodon::api_version> getInstanceData();
 
 private:
     static const utility::string_t API_V1_INSTANCE;

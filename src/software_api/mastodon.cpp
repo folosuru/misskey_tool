@@ -6,12 +6,12 @@
 
 std::string mastodon::getDescription() {
 
-    if (getInstance().second == mastodon::api_version::v2){
-        return getInstance().first["description"].get<std::string>();
+    if (getInstanceData().second == mastodon::api_version::v2){
+        return getInstanceData().first["description"].get<std::string>();
     }
 
-    if (getInstance().second == mastodon::api_version::v1){
-        return getInstance().first["short_description"].get<std::string>();
+    if (getInstanceData().second == mastodon::api_version::v1){
+        return getInstanceData().first["short_description"].get<std::string>();
     }
     return "";
 }
@@ -54,7 +54,7 @@ int mastodon::getFederationCount() {
     }
 }
 
-std::pair<nlohmann::json, mastodon::api_version> mastodon::getInstance() {
+std::pair<nlohmann::json, mastodon::api_version> mastodon::getInstanceData() {
     if (instance) {
         return instance.value();
     }
@@ -84,17 +84,29 @@ std::string mastodon::getIcon(){
 }
 
 std::string mastodon::getName() {
-    return getInstance().first["title"].get<std::string>();
+    return getInstanceData().first["title"].get<std::string>();
 }
 
 std::string mastodon::getServerVersion() {
-    return getInstance().first["version"].get<std::string>();
+    return getInstanceData().first["version"].get<std::string>();
 }
 
 std::string mastodon::getBanner() {
-    if (getInstance().second == api_version::v2){
-        return getInstance().first["thumbnail"]["url"].get<std::string>();
+    if (getInstanceData().second == api_version::v2){
+        return getInstanceData().first["thumbnail"]["url"].get<std::string>();
     } else {
-        return getInstance().first["thumbnail"].get<std::string>();
+        return getInstanceData().first["thumbnail"].get<std::string>();
+    }
+}
+
+void mastodon::fetchFederationToQueue() {
+    std::optional<instance_list> list = fetchAllFederation();
+    if (list) {
+        for (const auto& federation_instance : list.value()) {
+            if (!blacklist_->isBlacklisted(federation_instance)) {
+                domain.addQueue(federation_instance);
+                //std::cout << "get:" << federation_instance << std::endl;
+            }
+        }
     }
 }

@@ -14,15 +14,11 @@ public:
 
     ~misskey() = default;
 
-    static const int instance_get_limit ;
-
-    static const int access_thread_limit;
-
-    static const int connect_timeout ;
-
     using api::api;
 
     std::optional<instance_list> fetchAllFederation() override;
+
+    void fetchFederationToQueue() override;
 
     int getFederationCount() override;
 
@@ -38,6 +34,8 @@ public:
 
     std::string getDescription() override;
 
+    nlohmann::json getMeta();
+
     static const utility::string_t INSTANCES_PATH;
     static const utility::string_t STATS_PASS;
     static const utility::string_t MIME_APPLICATION_JSON;
@@ -48,6 +46,7 @@ public:
     static const utility::string_t META_PASS;
 
 private:
-    nlohmann::json getMeta();
     std::optional<nlohmann::json> meta;
+
+    static const int instance_get_limit;
 };

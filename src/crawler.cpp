@@ -6,138 +6,66 @@
 #include "util/util.hpp"
 #include "util/sql.hpp"
 #include "util/blacklist.hpp"
+#include "queue/work_queue.hpp"
 
 using namespace sw::redis;
 
 int main() {
+    pqxx::connection connection = util::sql::createConnection();
     try{
-        util::sql::initDB();
+        util::sql::initDB(connection);
     } catch (std::exception const &e){
         std::cerr << "Database setup error: " << e.what() << std::endl;
         return 1;
     }
+    std::shared_ptr<work_queue> queue = std::make_shared<work_queue>();
+    std::shared_ptr<util::blacklist> blacklist;
+    try {
+        blacklist = std::make_shared<util::blacklist>(/*connection*/);
+    } catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+    connection.close();
+
     /* first instance...
      *
      * you can change url to another instance.
      */
-     std::shared_ptr<work_queue> queue = std::make_shared<work_queue>();
-    if (cursor == 0) {
-        api * instance = api::getInstance("msky.z-n-a-k.net");
-        auto list = instance->fetchAllFederation();
-        if (list) {
-            for (const auto &item: list.value()) {
-                queue->add(item);
-            }
-        }
-        delete instance;
-    }
-
+    queue->add("msky.z-n-a-k.net");
+    api::getInstance(queue->get().value(), blacklist)->fetchFederationToQueue();
 
     std::vector<std::thread> thread_list;
     for (int i = 0; i < 10; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        thread_list.emplace_back(std::thread([] {
-            std::cout << "start thread..." << std::endl;
+        thread_list.emplace_back(std::thread([queue,blacklist] {
+            //std::cout << "start thread..." << std::endl;
             pqxx::connection db = util::sql::createConnection();
-            auto redis = Redis("tcp://127.0.0.1:6379");
             while (true) {
-
-                std::unordered_set<std::string> keys;
-                keys.clear();
-                try {
-                    auto cursor = 0LL;
-                    while (true) {
-                        cursor = redis.scan(cursor, "misskey_tool:queue*", 1, std::inserter(keys, keys.begin()));
-                        if (keys.empty()) {
-                            if (cursor == 0) {
-                                std::cout << "empty" << std::endl;
-                                return;
-                            }
-                            continue;
-                        } else {
-                            break;
-                        }
-                    }
-                } catch (std::exception& exception){
-                    std::cout << "Error in get key: " << exception.what() << std::endl;
+                std::optional<target_domain> target = queue->get();
+                std::cout << "start: " << target.value().domain << std::endl;
+                if (!target) {
+                    break;
+                }
+                if (blacklist->isBlacklisted(target.value().domain)){
                     continue;
                 }
-                std::string url = *keys.begin();
-                url.erase(0, 19);
+                std::shared_ptr<api> i;
                 try {
-                    redis.rename("misskey_tool:queue:" + url, "misskey_tool:working:" + url);
-                } catch (sw::redis::ReplyError &e) {
-                    continue;
-                }
-                if (util::blacklist::isBlacklisted(db, url)){
-                    redis.del("misskey_tool:working:" + url);
-                    std::cout << "skip: blacklist:" + url << std::endl;
-                    continue;
-                }
-                std::cout << "get: " + url << std::endl;
-                api* i;
-                try {
-                    i = api::getInstance(url);
+                    i = api::getInstance(target.value(), blacklist);
                 } catch (std::exception &exception) {
-                    std::cout << "Error: Cannot access resource: " + url << std::endl;
-                    try {
-                        redis.rename("misskey_tool:working:" + url, "misskey_tool:fail:" + url);
-                        std::string topleveldomain = util::getTopLevelDomain(url);
-                        long long fail_score = redis.incr("misskey_tool:fail_domain:"+topleveldomain);
-                        if (fail_score > 50){
-                            util::sql::addBlacklist(db,topleveldomain);
-                            std::cout << "add blacklist:" + topleveldomain <<std::endl;
-                        }
-                    } catch (sw::redis::ReplyError &e) {}
+                    std::string topLevelDomain = util::getTopLevelDomain(target.value().domain);
+                    if (blacklist->addBlacklistCandidate(topLevelDomain)) {
+                        util::sql::addBlacklist(db, topLevelDomain);
+                    }
                     continue;
                 }
                 try {
-                    if (redis.get("misskey_tool:working:" + url).value() ==
-                        std::to_string(i->getFederationCount()) && i->getFederationCount() != 0 ) {
-                        redis.rename("misskey_tool:working:" + url, "misskey_tool:history:" + url);
-                        delete i;
-                        continue;
-                    }
-                    std::optional<api::instance_list> list = i->fetchAllFederation();
+                    i->fetchFederationToQueue();
                     util::sql::writeInstance(db, i);
-                    std::cout << "wrote: " + url << std::endl;
-                    redis.rename("misskey_tool:working:" + url, "misskey_tool:history:" + url);
-                    redis.set("misskey_tool:history:" + url , std::to_string(i->getFederationCount()));
-                    if (!list) {
-                        delete i;
-                        continue;
-                    }
-                    for (const auto &i1: list.value()) {
-                        if (redis.exists("misskey_tool:*" + i1)) {
-                            continue;
-                        } else {
-                            if (util::blacklist::isBlacklisted(db,i1)) {
-                                continue;
-                            }
-                            redis.set("misskey_tool:queue:" + i1, "0");
-                        }
-                    }
-                    list.value().clear();
-                    std::cout << "complete: " + url << std::endl;
-                } catch (sw::redis::Error &e) {
-                    std::cerr << "Error: redis: " << e.what() << std::endl;
-                } catch (std::exception& e) {
-                    if (typeid(e) == typeid(web::http::http_exception)) {
-                        std::cerr << "Error: http: " << url << " : " << e.what() << std::endl;
-                    } else if (typeid(e) == typeid(nlohmann::json::exception)) {
-                        std::cerr << "Error: json: " << url << " : " << e.what() << std::endl;
-                    } else {
-                        std::cerr << "Error: other: " << url << " : " << e.what() << std::endl;
-                    }
-                    try{
-                        redis.rename("misskey_tool:working:" + url, "misskey_tool:fail:" + url);
-                    } catch (sw::redis::ReplyError &error) {}
-                }
-                delete i;
+                } catch (...) {}
             }
             db.close();
         }));
-
     }
     for (auto& thread : thread_list) {
         thread.join();
