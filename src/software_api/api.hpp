@@ -16,6 +16,7 @@ public:
     virtual ~api() = default;
 
     static api * getInstance(const std::string& URL);
+    static api * getInstance(target_domain);
 
     typedef std::vector<std::string> instance_list;
 
@@ -31,6 +32,8 @@ public:
     api(const utility::string_t& URL , nlohmann::json nodeinfo , nlohmann::json manifest);
 
     virtual std::optional<instance_list> fetchAllFederation();
+
+    virtual void fetchAllFederation();
 
     virtual int getFederationCount();
 

@@ -10,27 +10,29 @@
 #include "util.hpp"
 
 namespace util {
-    namespace blacklist {
+class blacklist {
+public:
+    blacklist(pqxx::connection &connection);
 
+    bool isBlacklisted(const std::string& url);
+private:
+    /*
+     * black list domain
+     */
+    static inline const std::unordered_set<std::string> domain = {
+            "activitypub-troll.cf",
+            "misskey-forkbomb.cf",
+            "repl.co",
+            "gab.best",
+            "ngrok.io",
+            ".local"
+    };
 
-        /*
-         * black list domain
-         */
-        const std::unordered_set<std::string> blacklisted_domain = {
-                "activitypub-troll.cf",
-                "misskey-forkbomb.cf",
-                "repl.co",
-                "gab.best",
-                "ngrok.io",
-                ".local"
-        };
+    static inline const std::unordered_set<std::string> ip = {
+            "10.",
+            "192.168.",
+    };
 
-        const std::unordered_set<std::string> blacklisted_ip = {
-                "10.",
-                "192.168.",
-        };
-
-        bool isBlacklisted(pqxx::connection &connection,const std::string& url);
-
+    std::unordered_set<std::string> blacklisted;
     }
 }

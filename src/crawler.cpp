@@ -16,21 +16,17 @@ int main() {
         std::cerr << "Database setup error: " << e.what() << std::endl;
         return 1;
     }
-    auto redis = Redis("tcp://127.0.0.1:6379");
-
     /* first instance...
      *
      * you can change url to another instance.
      */
-    std::unordered_set<std::string> keys;
-    auto cursor = 0LL;
-    cursor = redis.scan(cursor, "misskey_tool:queue*", 1, std::inserter(keys, keys.begin()));
+     std::shared_ptr<work_queue> queue = std::make_shared<work_queue>();
     if (cursor == 0) {
         api * instance = api::getInstance("msky.z-n-a-k.net");
         auto list = instance->fetchAllFederation();
         if (list) {
             for (const auto &item: list.value()) {
-                redis.set("misskey_tool:queue:" + item, "");
+                queue->add(item);
             }
         }
         delete instance;
@@ -149,4 +145,3 @@ int main() {
 
     return 0;
 }
-
