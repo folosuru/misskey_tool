@@ -15,7 +15,7 @@ bool util::sql::isExistByDomain(pqxx::connection& connection , const std::string
 void util::sql::writeInstance(pqxx::connection& connection, std::shared_ptr<api> api) {
     pqxx::work work(connection);
     work.exec("insert into instance_list "
-              "(domain, user_count, post_count, software, federation_count, description, icon, server_version, name, register, banner, language) "
+              "(domain, user_count, post_count, software, federation_count, description, icon, server_version, name, register, banner, language, update_time) "
               "VALUES("
               + work.quote(api->getDomain()) + ","
               + work.quote(api->getUserCount()) + " , "
@@ -28,7 +28,7 @@ void util::sql::writeInstance(pqxx::connection& connection, std::shared_ptr<api>
               + work.quote(api->getName()) + " , "
               + work.quote(static_cast<int>(api->getRegisterStatus())) + " , "
               + work.quote(api->getBanner()) + " , "
-              + "null" + " )"
+              + "null" + ", 'now' )"
               + "ON CONFLICT ON CONSTRAINT instance_list_domain_key DO UPDATE SET "
                 "user_count = " + work.quote(api->getUserCount()) + " , "
                 "post_count = " + work.quote(api->getPostsCount()) + " , "
@@ -39,7 +39,8 @@ void util::sql::writeInstance(pqxx::connection& connection, std::shared_ptr<api>
                 "server_version = " + work.quote(api->getServerVersion()) + " , "
                 "name = " + work.quote(api->getName()) + " , "
                 "register = " + work.quote(static_cast<int>(api->getRegisterStatus())) + " , "
-                "banner = " + work.quote(api->getBanner()) + ";"
+                "banner = " + work.quote(api->getBanner()) + ","
+                "update_time = 'now'"
             );
     work.commit();
 }
@@ -59,6 +60,7 @@ void util::sql::initDB(pqxx::connection& c) {
             " register text,"
             " banner text,"
             " language text,"
+            "update_time timestamp,"
             " UNIQUE(domain));"
             "create table IF NOT EXISTS blacklist (domain text, UNIQUE(domain));"
 

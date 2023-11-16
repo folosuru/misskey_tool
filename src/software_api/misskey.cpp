@@ -115,7 +115,7 @@ void misskey::fetchFederationToQueue() {
             for (const auto& federation_instance : list.value()) {
                 if (!blacklist_->isBlacklisted(federation_instance)) {
                     domain.addQueue(federation_instance);
-                    std::cout << "get:" << federation_instance << std::endl;
+                    //std::cout << "get:" << federation_instance << std::endl;
                 }
             }
         }

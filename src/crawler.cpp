@@ -1,14 +1,11 @@
 ﻿#include <iostream>
 #include "software_api/api.hpp"
 #include <pqxx/pqxx>
-#include <sw/redis++/redis++.h>
 #include <thread>
 #include "util/util.hpp"
 #include "util/sql.hpp"
 #include "util/blacklist.hpp"
 #include "queue/work_queue.hpp"
-
-using namespace sw::redis;
 
 int main() {
     pqxx::connection connection = util::sql::createConnection();
@@ -21,9 +18,10 @@ int main() {
     std::shared_ptr<work_queue> queue = std::make_shared<work_queue>();
     std::shared_ptr<util::blacklist> blacklist;
     try {
-        blacklist = std::make_shared<util::blacklist>(/*connection*/);
+        blacklist = std::make_shared<util::blacklist>(connection);
     } catch (std::exception& e) {
         std::cout << e.what() << std::endl;
+        return 1;
     }
     connection.close();
 
@@ -42,7 +40,7 @@ int main() {
             pqxx::connection db = util::sql::createConnection();
             while (true) {
                 std::optional<target_domain> target = queue->get();
-                std::cout << "start: " << target.value().domain << std::endl;
+                //std::cout << "start: " << target.value().domain << std::endl;
                 if (!target) {
                     break;
                 }
@@ -62,7 +60,9 @@ int main() {
                 try {
                     i->fetchFederationToQueue();
                     util::sql::writeInstance(db, i);
-                } catch (...) {}
+                } catch (std::exception& e) {
+                    //std::cout << e.what() << std::endl;
+                }
             }
             db.close();
         }));
