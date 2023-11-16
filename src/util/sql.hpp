@@ -21,7 +21,7 @@ namespace util::sql {
 
     void addBlacklist(pqxx::connection &connection, const std::string& domain);
 
-    void writeInstance(pqxx::connection &connection, std::shared_ptr<api> api);
+    void writeInstance(pqxx::connection &connection, const std::shared_ptr<api>& api);
 
     void updateInstance(pqxx::connection &connection, api* api);
 }
