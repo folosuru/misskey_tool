@@ -24,6 +24,7 @@ bool util::blacklist::isBlacklisted(const std::string& url) const noexcept {
             }
         }
     }
+    return false;
     std::shared_lock<std::shared_mutex> lock(mutex);
     return (blacklisted.find(url) != blacklisted.end());
 }

@@ -30,7 +30,6 @@ private:
             "activitypub-troll.cf",
             "misskey-forkbomb.cf",
             "repl.co",
-            "gab.best",
             "ngrok.io",
             ".local"
     };
