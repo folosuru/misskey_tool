@@ -15,14 +15,15 @@ void work_queue::add(const std::string& add_domain) {
     std::shared_lock<std::shared_mutex> lock(found_mutex);
     if (isNotFound(add_domain)) {
         std::lock_guard<std::shared_mutex> lock2(queue_mutex);
-        queue.push(add_domain);
+        queue.insert(add_domain);
     }
 }
 
 std::optional<target_domain> work_queue::get() {
     std::lock_guard<std::shared_mutex> lock(queue_mutex);
-    auto result = target_domain(queue.front(), *this);
-    queue.pop();
+    std::string url = *queue.begin();
+    auto result = target_domain(url, *this);
+    queue.erase(url);
     return result;
 }
 

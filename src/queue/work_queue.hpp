@@ -28,7 +28,7 @@ public:
 
     std::optional<target_domain> get();
 private:
-    std::queue<std::string> queue;
+    std::unordered_set<std::string> queue;
     std::unordered_set<std::string> found_domain;
     std::shared_mutex found_mutex;
     std::shared_mutex queue_mutex;

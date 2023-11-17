@@ -15,6 +15,7 @@ std::shared_ptr<api> api::getInstance(const target_domain& target,
                                       const std::shared_ptr<util::blacklist>& blackList) {
     utility::string_t URL = utility::conversions::to_string_t(target.domain);
     web::http::client::http_client_config conf;
+    conf.set_timeout(std::chrono::seconds(10));
     auto nodeinfo_url = nlohmann::json::parse(web::http::client::http_client(HTTPS_URI_SCHEME + URL + NODEINFO_PATH , conf)
             .request(web::http::methods::GET).get().extract_utf8string().get())
             ["links"][0]["href"].get<std::string>();

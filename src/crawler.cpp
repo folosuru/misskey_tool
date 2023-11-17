@@ -33,7 +33,7 @@ int main() {
     api::getInstance(queue->get().value(), blacklist)->fetchFederationToQueue();
 
     std::vector<std::thread> thread_list;
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 15; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         thread_list.emplace_back(std::thread([queue,blacklist] {
             //std::cout << "start thread..." << std::endl;
@@ -61,7 +61,7 @@ int main() {
                     i->fetchFederationToQueue();
                     util::sql::writeInstance(db, i);
                 } catch (std::exception& e) {
-                    //std::cout << e.what() << std::endl;
+                    //std::cout << e.what() << std::endl;-
                 }
             }
             db.close();
