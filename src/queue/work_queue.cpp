@@ -25,6 +25,8 @@ std::optional<target_domain> work_queue::get() noexcept {
     std::string url = *queue.begin();
     auto result = target_domain(url, *this);
     queue.erase(url);
+    std::lock_guard<std::shared_mutex> lock2(found_mutex);
+    found_domain.insert(url);
     return result;
 }
 
