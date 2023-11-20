@@ -1,4 +1,8 @@
 ﻿#include <iostream>
+#include <iostream>
+#include <chrono>
+#include <ctime>
+#include <iomanip>
 #include "software_api/api.hpp"
 #include <pqxx/pqxx>
 #include <thread>
@@ -31,7 +35,6 @@ int main() {
      */
     queue->add("msky.z-n-a-k.net");
     api::getInstance(queue->get().value(), blacklist)->fetchFederationToQueue();
-
     std::vector<std::thread> thread_list;
     for (int i = 0; i < 15; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -67,9 +70,21 @@ int main() {
             db.close();
         }));
     }
+    std::thread logger([queue,blacklist]{
+        int count = 0;
+        while (true){
+            std::this_thread::sleep_for(std::chrono::minutes(30));
+            ++count;
+            auto size = queue->getQueueSize();
+            std::cout << count << ": queue :" << size << std::endl;
+            std::cout << count << ": result:" << queue->getFoundSize() << std::endl;
+            if (count == 0) break;
+        }
+    });
     for (auto& thread : thread_list) {
         thread.join();
     }
+    logger.join();
 
     return 0;
 }

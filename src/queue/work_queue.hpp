@@ -11,7 +11,7 @@ class target_domain {
 public:
     std::string domain;
 
-    void addQueue(const std::string&);
+    void addQueue(const std::string&) noexcept;
 
     target_domain(std::string  domain, work_queue& queue);
 
@@ -22,15 +22,18 @@ private:
 
 class work_queue {
 public:
-    void add(const std::string&);
+    void add(const std::string&) noexcept;
 
-    bool isNotFound(const std::string&);
+    bool isNotFound(const std::string&) const noexcept;
 
-    std::optional<target_domain> get();
+    std::optional<target_domain> get() noexcept;
+
+    size_t getQueueSize() const noexcept;
+    size_t getFoundSize() const noexcept;
 private:
     std::unordered_set<std::string> queue;
     std::unordered_set<std::string> found_domain;
-    std::shared_mutex found_mutex;
-    std::shared_mutex queue_mutex;
+    mutable std::shared_mutex found_mutex;
+    mutable std::shared_mutex queue_mutex;
 };
 #endif  // MISSKEY_TOOL_SRC_QUEUE_WORK_QUEUE_HPP
