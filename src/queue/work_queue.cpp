@@ -13,21 +13,25 @@ void target_domain::addQueue(const std::string& add_domain) noexcept {
 
 void work_queue::add(const std::string& add_domain) noexcept {
     std::shared_lock<std::shared_mutex> lock(found_mutex);
-    if (isNotFound(add_domain)) {
+    if (found_domain.find(add_domain) == found_domain.end()) {
         std::lock_guard<std::shared_mutex> lock2(queue_mutex);
         queue.insert(add_domain);
     }
 }
 
 std::optional<target_domain> work_queue::get() noexcept {
-    std::lock_guard<std::shared_mutex> lock(queue_mutex);
-    if (queue.empty()) return std::nullopt;
-    std::string url = *queue.begin();
-    auto result = target_domain(url, *this);
-    queue.erase(url);
-    std::lock_guard<std::shared_mutex> lock2(found_mutex);
-    found_domain.insert(url);
-    return result;
+    std::string url;
+    {
+        std::lock_guard<std::shared_mutex> lock(queue_mutex);
+        if (queue.empty()) return std::nullopt;
+        url = *queue.begin();
+        queue.erase(url);
+    }
+    {
+        std::lock_guard<std::shared_mutex> lock2(found_mutex);
+        found_domain.insert(url);
+    }
+    return target_domain(target_domain(url, *this));
 }
 
 bool work_queue::isNotFound(const std::string& name) const noexcept {
