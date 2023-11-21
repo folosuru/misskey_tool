@@ -38,8 +38,8 @@ int main() {
     std::vector<std::thread> thread_list;
     for (int i = 0; i < 15; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        thread_list.emplace_back(std::thread([queue,blacklist] {
-            //std::cout << "start thread..." << std::endl;
+        thread_list.emplace_back([queue,blacklist] {
+            std::cout << "start thread..." << std::endl;
             pqxx::connection db = util::sql::createConnection();
             while (true) {
                 std::optional<target_domain> target = queue->get();
@@ -64,11 +64,12 @@ int main() {
                     i->fetchFederationToQueue();
                     util::sql::writeInstance(db, i);
                 } catch (std::exception& e) {
-                    //std::cout << e.what() << std::endl;-
+                    std::cout << e.what() << std::endl;
                 }
             }
             db.close();
-        }));
+            std::cout << "thread end" << std::endl;
+        });
     }
     std::thread logger([queue,blacklist]{
         int count = 0;
@@ -78,13 +79,12 @@ int main() {
             auto size = queue->getQueueSize();
             std::cout << count << ": queue :" << size << std::endl;
             std::cout << count << ": result:" << queue->getFoundSize() << std::endl;
-            if (count == 0) break;
+            if (size == 0) break;
         }
     });
     for (auto& thread : thread_list) {
         thread.join();
     }
     logger.join();
-
     return 0;
 }
