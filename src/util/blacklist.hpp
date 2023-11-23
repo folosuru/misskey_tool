@@ -31,7 +31,10 @@ private:
             "misskey-forkbomb.cf",
             "repl.co",
             "ngrok.io",
-            ".local"
+            ".local",
+            "eeeeeeeee.eu",
+            ".bka.li",
+            ".kromonos.net"
     };
 
     static inline const std::unordered_set<std::string> ip = {
