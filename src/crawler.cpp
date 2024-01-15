@@ -27,14 +27,21 @@ int main() {
         std::cout << e.what() << std::endl;
         return 1;
     }
+    {
+        pqxx::work tx{connection};
+        for (auto [name] : tx.stream<std::string_view>("SELECT domain from instance_list")) {
+            queue->addFoundAndQueue_unsafe(name);
+        }
+    }
     connection.close();
+    std::cout << "added queue:" << queue->getQueueSize() << "\n";
 
     /* first instance...
      *
      * you can change url to another instance.
      */
-    queue->add("msky.z-n-a-k.net");
-    api::getInstance(queue->get().value(), blacklist)->fetchFederationToQueue();
+    //queue->add("msky.z-n-a-k.net");
+    //api::getInstance(queue->get().value(), blacklist)->fetchFederationToQueue();
     std::vector<std::thread> thread_list;
     for (int i = 0; i < 15; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));

@@ -1,4 +1,5 @@
 #include "work_queue.hpp"
+#include <mutex>
 #include <shared_mutex>
 #include <utility>
 
@@ -9,6 +10,11 @@ target_domain::target_domain(std::string domain,
 
 void target_domain::addQueue(const std::string& add_domain) noexcept {
     queue.add(add_domain);
+}
+
+void work_queue::addFoundAndQueue_unsafe(std::string_view view) noexcept {
+    queue.insert(std::string{view});
+    found_domain.insert(std::string{view});
 }
 
 void work_queue::add(const std::string& add_domain) noexcept {

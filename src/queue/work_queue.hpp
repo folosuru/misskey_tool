@@ -22,6 +22,8 @@ private:
 
 class work_queue {
 public:
+    void addFoundAndQueue_unsafe(std::string_view) noexcept;
+
     void add(const std::string&) noexcept;
 
     bool isNotFound(const std::string&) const noexcept;

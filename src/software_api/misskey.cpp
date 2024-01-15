@@ -3,6 +3,8 @@
 //
 #include "misskey.hpp"
 
+#include <thread>
+
 const int misskey::instance_get_limit = 100;
 
 
