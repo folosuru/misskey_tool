@@ -67,11 +67,11 @@ int main() {
                     }
                     continue;
                 }
+                util::sql::writeInstance(db, i);
                 try {
                     i->fetchFederationToQueue();
-                    util::sql::writeInstance(db, i);
                 } catch (std::exception& e) {
-                    std::cout << e.what() << std::endl;
+                    std::cout << "fail to get federation: " << i->getDomain() << e.what() << std::endl;
                 }
             }
             db.close();
