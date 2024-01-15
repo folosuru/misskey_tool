@@ -67,7 +67,11 @@ int main() {
                     }
                     continue;
                 }
-                util::sql::writeInstance(db, i);
+                try {
+                    util::sql::writeInstance(db, i);
+                } catch (std::exception& e) {
+                    std::cout << "exception in get information (or write database): " << i->getDomain() << e.what() << std::endl;
+                }
                 try {
                     i->fetchFederationToQueue();
                 } catch (std::exception& e) {
