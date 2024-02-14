@@ -4,6 +4,9 @@
 #include "util.hpp"
 
 std::string util::addScheme(const std::string& path , const std::string& domain) {
+    if (path.empty()) {
+        return "";
+    }
     if (path.substr(0,4) == "http"){
         return path;
     } else {
