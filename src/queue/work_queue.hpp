@@ -6,6 +6,7 @@
 #include <utility>
 #include <shared_mutex>
 #include <optional>
+#include <stack>
 class work_queue;
 class target_domain {
 public:
@@ -33,7 +34,7 @@ public:
     size_t getQueueSize() const noexcept;
     size_t getFoundSize() const noexcept;
 private:
-    std::unordered_set<std::string> queue;
+    std::stack<std::string_view> queue;
     std::unordered_set<std::string> found_domain;
     mutable std::shared_mutex found_mutex;
     mutable std::shared_mutex queue_mutex;
